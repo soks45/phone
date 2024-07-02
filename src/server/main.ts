@@ -6,9 +6,10 @@ import session from 'express-session';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { appController } from './app/app.controller';
+import { DatabaseService } from './app/services/database.service';
 import { clientController } from './client.controller';
 
-function run(): void {
+async function run(): Promise<void> {
     dotenv.config();
     const port = process.env['SERVER_PORT'] || 4000;
     const cookieSecret: string = process.env['COOKIE_SECRET'] || 'COOKIE_SECRET';
@@ -34,6 +35,8 @@ function run(): void {
         .set('views', resolve(dirname(fileURLToPath(import.meta.url)), '../browser'))
         /** Serve client */
         .use('/', clientController());
+
+    await DatabaseService.connect();
 
     server.listen(port, () => {
         console.log(`Node Express server listening on http://localhost:${port}`);
