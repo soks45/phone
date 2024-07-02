@@ -18,8 +18,8 @@
           "builder": "@angular-devkit/build-angular:application",
           "options": {
             "outputPath": "dist/phone",
-            "index": "src/index.html",
-            "browser": "src/main.ts",
+            "index": "src/client/index.html",
+            "browser": "src/client/main.ts",
             "polyfills": [
               "zone.js"
             ],
@@ -32,13 +32,13 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "src/client/styles.scss"
             ],
             "scripts": [],
-            "server": "src/main.server.ts",
+            "server": "src/client/main.server.ts",
             "prerender": true,
             "ssr": {
-              "entry": "server.ts"
+              "entry": "src/server/server.ts"
             }
           },
           "configurations": {
@@ -96,7 +96,7 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "src/client/styles.scss"
             ],
             "scripts": []
           }
