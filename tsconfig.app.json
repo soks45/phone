@@ -11,7 +11,7 @@
   "files": [
     "src/client/main.ts",
     "src/client/main.server.ts",
-    "src/server/server.ts"
+    "src/server/main.ts"
   ],
   "include": [
     "src/**/*.d.ts"
