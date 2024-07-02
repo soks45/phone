@@ -4,11 +4,13 @@
     "scripts": {
         "ng": "ng",
         "client:start": "ng serve",
-        "client:build": "ng build",
-        "client:watch": "ng build --watch --configuration development",
+        "__dev_serve__": "",
+        "client:build:watch": "ng build --watch --configuration development",
         "server:serve": "nodemon dist/phone/server/server.mjs",
+        "__prod_serve__": "",
+        "client:build": "ng build",
         "server:run": "node dist/phone/server/server.mjs",
-        "*** lint ***": "",
+        "__lint__": "",
         "lint": "eslint \"**/*.{js,ts,html}\" --quiet --fix",
         "format": "prettier \"**/*.{js,ts,html,css,scss,json}\" --write",
         "lint-format": "npm run format && npm run lint"
@@ -46,10 +48,10 @@
         "http-errors": "~1.6.3",
         "joi": "^17.13.3",
         "morgan": "~1.9.1",
+        "pg": "^8.12.0",
         "rxjs": "~7.8.0",
         "tslib": "^2.3.0",
-        "zone.js": "~0.14.3",
-        "pg": "^8.12.0"
+        "zone.js": "~0.14.3"
     },
     "devDependencies": {
         "@angular-devkit/build-angular": "^18.0.6",
@@ -70,6 +72,8 @@
         "@types/pg": "^8.11.6",
         "@typescript-eslint/eslint-plugin": "6.7.4",
         "@typescript-eslint/parser": "6.7.4",
+        "db-migrate": "^0.11.14",
+        "db-migrate-pg": "^1.5.2",
         "eslint": "^8.51.0",
         "eslint-config-prettier": "^9.0.0",
         "eslint-plugin-prettier": "^5.0.0",
@@ -77,8 +81,6 @@
         "eslint-plugin-unused-imports": "^3.0.0",
         "husky": "4.3.0",
         "lint-staged": "11.2.0",
-        "db-migrate": "^0.11.14",
-        "db-migrate-pg": "^1.5.2",
         "nodemon": "^3.1.4",
         "prettier": "^3.0.3",
         "ts-node": "^10.9.2",

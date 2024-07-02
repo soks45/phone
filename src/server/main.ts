@@ -5,7 +5,7 @@ import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { apiController } from './api/api.controller';
+import { appController } from './app/app.controller';
 import { clientController } from './client.controller';
 
 function run(): void {
@@ -28,7 +28,7 @@ function run(): void {
             })
         )
         /** api */
-        .use('/api', apiController())
+        .use('/api', appController())
         /** Set up view engine */
         .set('view engine', 'html')
         .set('views', resolve(dirname(fileURLToPath(import.meta.url)), '../browser'))
