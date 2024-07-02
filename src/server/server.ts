@@ -4,6 +4,10 @@ import express from 'express';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import bootstrap from '../client/main.server';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
 
 // The Express app is exported so that it can be used by serverless Functions.
 export function app(): express.Express {
