@@ -1,7 +1,6 @@
 import { Router } from 'express';
+import { UserController } from './controllers/user.controller';
 
 export function appController(): Router {
-    return Router().get('/', (req, res) => {
-        res.status(200).json('hello world');
-    });
+    return Router().use('/user', UserController);
 }
