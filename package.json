@@ -4,16 +4,18 @@
     "scripts": {
         "ng": "ng",
         "client:start": "ng serve",
-        "__dev_serve__": "",
+        "___dev_serve___": "",
         "build:watch": "ng build --watch --configuration development",
         "server:serve": "nodemon dist/phone/server/server.mjs",
-        "__prod_serve__": "",
+        "___prod_serve___": "",
         "build": "ng build",
         "server:run": "node dist/phone/server/server.mjs",
-        "__lint__": "",
+        "___lint___": "",
         "lint": "eslint \"**/*.{js,ts,html}\" --quiet --fix",
         "format": "prettier \"**/*.{js,ts,html,css,scss,json}\" --write",
-        "lint-format": "npm run format && npm run lint"
+        "lint-format": "npm run format && npm run lint",
+        "___database___": "",
+        "migrate:dev": "db-migrate up -e dev"
     },
     "husky": {
         "hooks": {
