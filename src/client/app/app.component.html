@@ -1,4 +1,19 @@
-<tui-root>
-    123
-    <router-outlet />
+<tui-root [tuiMode]="'onLight'">
+    <ng-container ngProjectAs="tuiOverContent">
+        <!-- Content over app content -->
+    </ng-container>
+    <ng-container ngProjectAs="tuiOverDialogs">
+        <!-- Content over dialogs -->
+    </ng-container>
+    <ng-container ngProjectAs="tuiOverAlerts">
+        <!-- Content over alerts -->
+    </ng-container>
+    <ng-container ngProjectAs="tuiOverPortals">
+        <!-- Content over dropdowns -->
+    </ng-container>
+    <ng-container ngProjectAs="tuiOverHints">
+        <!-- Content over hints -->
+    </ng-container>
+
+    <router-outlet></router-outlet>
 </tui-root>
