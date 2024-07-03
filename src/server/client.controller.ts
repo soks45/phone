@@ -12,12 +12,12 @@ import bootstrap from '@client/main.server';
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
 const indexHtml = join(serverDistFolder, 'index.server.html');
+
+const commonEngine = new CommonEngine();
 const url = (req: Request) => {
     const { protocol, originalUrl, headers } = req;
     return ` ${protocol}://${headers.host}${originalUrl}`;
 };
-
-const commonEngine = new CommonEngine();
 
 const clientController = express
     .Router()
