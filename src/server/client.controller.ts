@@ -1,6 +1,8 @@
 import { APP_BASE_HREF } from '@angular/common';
 import { CommonEngine } from '@angular/ssr';
+import { Request, Response, NextFunction } from 'express';
 import express from 'express';
+import * as path from 'node:path';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import bootstrap from '../client/main.server';
@@ -8,12 +10,16 @@ import bootstrap from '../client/main.server';
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
 const indexHtml = join(serverDistFolder, 'index.server.html');
+const url = (req: Request) => {
+    const { protocol, originalUrl, headers } = req;
+    return ` ${protocol}://${headers.host}${originalUrl}`;
+};
 
 const commonEngine = new CommonEngine();
 
 const clientController = express
     .Router()
-    /** Serve static files from /browser */
+    /** Serve static files, e.g. SSG`ed pages */
     .get(
         '**',
         express.static(browserDistFolder, {
@@ -21,17 +27,23 @@ const clientController = express
             index: 'index.html',
         })
     )
+    /** Serve CSR pages */
+    .get('**', (req: Request, res: Response, next: NextFunction) => {
+        console.log(`CSR: ${url(req)}`);
+
+        res.sendFile(path.join(browserDistFolder, 'index.csr.html'));
+    })
     /** Serve SSR pages */
-    .get('**', (req, res, next) => {
-        const { protocol, originalUrl, baseUrl, headers } = req;
+    .get('**', (req: Request, res: Response, next: NextFunction) => {
+        console.log(`SSR: ${url(req)}`);
 
         commonEngine
             .render({
                 bootstrap,
                 documentFilePath: indexHtml,
-                url: `${protocol}://${headers.host}${originalUrl}`,
+                url: url(req),
                 publicPath: browserDistFolder,
-                providers: [{ provide: APP_BASE_HREF, useValue: baseUrl }],
+                providers: [{ provide: APP_BASE_HREF, useValue: req.baseUrl }],
             })
             .then((html) => res.send(html))
             .catch((err) => next(err));
