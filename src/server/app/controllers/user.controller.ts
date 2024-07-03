@@ -1,6 +1,6 @@
 import express from 'express';
-import { User } from '../models/user';
-import { UserData } from '../models/user.data';
+import { User } from '../../../shared/models/user';
+import { UserData } from '../../../shared/models/user.data';
 import { UserService } from '../services/user.service';
 import idSchema from '../validations/id.schema';
 import userSchema from '../validations/user.schema';

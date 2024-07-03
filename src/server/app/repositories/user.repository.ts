@@ -1,6 +1,6 @@
 import { DatabaseException } from '../exceptions/database.exception';
-import { User } from '../models/user';
-import { UserData } from '../models/user.data';
+import { User } from '../../../shared/models/user';
+import { UserData } from '../../../shared/models/user.data';
 import { DatabaseService } from '../services/database.service';
 
 class UserRepository {

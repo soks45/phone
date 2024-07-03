@@ -1,5 +1,5 @@
-import { User } from '../models/user';
-import { UserData } from '../models/user.data';
+import { User } from '../../../shared/models/user';
+import { UserData } from '../../../shared/models/user.data';
 import { UserRepository } from '../repositories/user.repository';
 
 class UserService {

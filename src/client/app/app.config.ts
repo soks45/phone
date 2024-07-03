@@ -4,14 +4,14 @@ import { ApplicationConfig, provideZoneChangeDetection, importProvidersFrom } fr
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
-import { provideClientHydration } from '@angular/platform-browser';
+import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 
 export const appConfig: ApplicationConfig = {
     providers: [
         provideAnimations(),
-        provideZoneChangeDetection({ eventCoalescing: true }),
+        provideZoneChangeDetection({ eventCoalescing: true, ignoreChangesOutsideZone: true, runCoalescing: true }),
         provideRouter(routes),
-        provideClientHydration(),
+        provideClientHydration(withEventReplay()),
         importProvidersFrom(TuiRootModule),
     ],
 };

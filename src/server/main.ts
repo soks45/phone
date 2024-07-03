@@ -5,9 +5,9 @@ import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { appController } from './app/app.controller';
+import { AppController } from './app/app.controller';
 import { DatabaseService } from './app/services/database.service';
-import { clientController } from './client.controller';
+import { ClientController } from './client.controller';
 
 async function run(): Promise<void> {
     dotenv.config();
@@ -29,12 +29,12 @@ async function run(): Promise<void> {
             })
         )
         /** api */
-        .use('/api', appController())
+        .use('/api', AppController)
         /** Set up view engine */
         .set('view engine', 'html')
         .set('views', resolve(dirname(fileURLToPath(import.meta.url)), '../browser'))
         /** Serve client */
-        .use('/', clientController());
+        .use('/', ClientController);
 
     await DatabaseService.connect();
 
