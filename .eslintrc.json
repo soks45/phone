@@ -74,6 +74,48 @@
                     }
                 ]
             }
+        },
+        {
+            "files": ["*.ts"],
+            "plugins": ["import"],
+            "parser": "@typescript-eslint/parser",
+            "rules": {
+                "import/order": [
+                    "error",
+                    {
+                        "groups": ["builtin", "external", "internal", ["parent", "sibling"], "index", "object", "type"],
+                        "pathGroups": [
+                            {
+                                "pattern": "@shared/**",
+                                "group": "internal"
+                            },
+                            {
+                                "pattern": "@client/**",
+                                "group": "internal"
+                            },
+                            {
+                                "pattern": "@server/**",
+                                "group": "internal"
+                            },
+                            {
+                                "pattern": "@angular/**",
+                                "group": "external",
+                                "position": "before"
+                            }
+                        ],
+                        "pathGroupsExcludedImportTypes": ["builtin"],
+                        "alphabetize": {
+                            "order": "asc",
+                            "caseInsensitive": true
+                        },
+                        "newlines-between": "always"
+                    }
+                ],
+                "import/newline-after-import": "error",
+                "import/first": "error",
+                "import/no-duplicates": "error",
+                "import/no-extraneous-dependencies": "error"
+            }
         }
     ]
 }

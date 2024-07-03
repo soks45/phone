@@ -21,6 +21,20 @@
         "module": "ES2022",
         "useDefineForClassFields": false,
         "lib": ["ES2022", "dom"],
+        "paths": {
+            "@shared/*": ["shared/*"],
+            "@client/pages/*": ["client/app/pages/*"],
+            "@client/services/*": ["client/app/services/*"],
+            "@client/*": ["client/*"],
+            "@client/app/*": ["client/app/*"],
+            "@server/controllers/*": ["server/app/controllers/*"],
+            "@server/exceptions/*": ["server/app/exceptions/*"],
+            "@server/repositories/*": ["server/app/repositories/*"],
+            "@server/services/*": ["server/app/services/*"],
+            "@server/validations/*": ["server/app/validations/*"],
+            "@server/*": ["server/*"],
+            "@server/app/*": ["server/app/*"]
+        }
     },
     "angularCompilerOptions": {
         "enableI18nLegacyMessageIdFormat": false,

@@ -1,6 +1,7 @@
-import { TuiRootModule, TuiDialogModule, TuiAlertModule } from '@taiga-ui/core';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+
+import { TuiRootModule, TuiDialogModule, TuiAlertModule } from '@taiga-ui/core';
 
 @Component({
     selector: 'app-root',

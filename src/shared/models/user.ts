@@ -1,4 +1,4 @@
-import { NullableString } from 'shared/types/nullable';
+import { NullableString } from '@shared/types/nullable';
 
 export interface User {
     readonly id: number;

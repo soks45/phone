@@ -1,6 +1,6 @@
-import { User } from '../../../shared/models/user';
-import { UserData } from '../../../shared/models/user.data';
-import { UserRepository } from '../repositories/user.repository';
+import { UserRepository } from '@server/repositories/user.repository';
+import { User } from '@shared/models/user';
+import { UserData } from '@shared/models/user.data';
 
 class UserService {
     async create(data: UserData): Promise<number> {

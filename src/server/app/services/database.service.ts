@@ -1,5 +1,6 @@
-import dotenv from 'dotenv';
 import process from 'node:process';
+
+import dotenv from 'dotenv';
 import { ClientConfig, Pool } from 'pg';
 
 dotenv.config();

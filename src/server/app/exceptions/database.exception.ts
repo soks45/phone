@@ -1,3 +1,3 @@
-import { AppException } from './app.exception';
+import { AppException } from '@server/exceptions/app.exception';
 
 export class DatabaseException extends AppException {}

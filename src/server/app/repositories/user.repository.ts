@@ -1,7 +1,7 @@
-import { DatabaseException } from '../exceptions/database.exception';
-import { User } from '../../../shared/models/user';
-import { UserData } from '../../../shared/models/user.data';
-import { DatabaseService } from '../services/database.service';
+import { DatabaseException } from '@server/exceptions/database.exception';
+import { DatabaseService } from '@server/services/database.service';
+import { User } from '@shared/models/user';
+import { UserData } from '@shared/models/user.data';
 
 class UserRepository {
     async create(data: UserData): Promise<number> {

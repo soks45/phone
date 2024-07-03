@@ -1,13 +1,15 @@
-import express, { Express } from 'express';
-import dotenv from 'dotenv';
-import logger from 'morgan';
-import cookieParser from 'cookie-parser';
-import session from 'express-session';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { AppController } from './app/app.controller';
-import { DatabaseService } from './app/services/database.service';
-import { ClientController } from './client.controller';
+
+import cookieParser from 'cookie-parser';
+import dotenv from 'dotenv';
+import express, { Express } from 'express';
+import session from 'express-session';
+import logger from 'morgan';
+
+import { AppController } from '@server/app/app.controller';
+import { ClientController } from '@server/client.controller';
+import { DatabaseService } from '@server/services/database.service';
 
 async function run(): Promise<void> {
     dotenv.config();

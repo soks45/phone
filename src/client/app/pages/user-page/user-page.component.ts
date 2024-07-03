@@ -1,8 +1,9 @@
 import { JsonPipe } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { User } from '../../../../shared/models/user';
-import { UserService } from '../../services/user.service';
+
+import { UserService } from '@client/services/user.service';
+import { User } from '@shared/models/user';
 
 @Component({
     selector: 'app-user-page',

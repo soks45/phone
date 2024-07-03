@@ -1,9 +1,10 @@
 import express from 'express';
-import { User } from '../../../shared/models/user';
-import { UserData } from '../../../shared/models/user.data';
-import { UserService } from '../services/user.service';
-import idSchema from '../validations/id.schema';
-import userSchema from '../validations/user.schema';
+
+import { UserService } from '@server/services/user.service';
+import idSchema from '@server/validations/id.schema';
+import userSchema from '@server/validations/user.schema';
+import { User } from '@shared/models/user';
+import { UserData } from '@shared/models/user.data';
 
 const userController = express
     .Router()
