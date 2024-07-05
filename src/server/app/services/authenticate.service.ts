@@ -12,8 +12,6 @@ import { User } from '@shared/models/user';
 const LocalStrategy = passportLocal.Strategy;
 
 class AuthenticateService {
-    private isInitialized: boolean = false;
-
     /**
      * Login Required middleware.
      */
@@ -40,39 +38,35 @@ class AuthenticateService {
     };
 
     initialize(): Handler {
-        if (!this.isInitialized) {
-            passport.serializeUser((user, done) => {
-                done(null, {
-                    id: user.id,
-                });
+        passport.serializeUser((user, done) => {
+            done(null, {
+                id: user.id,
             });
+        });
 
-            passport.deserializeUser(async ({ id }: { id: number }, done) => {
-                const user: User = await UserService.read(id);
-                done(null, user);
-            });
+        passport.deserializeUser(async ({ id }: { id: number }, done) => {
+            const user: User = await UserService.read(id);
+            done(null, user);
+        });
 
-            passport.use(
-                new LocalStrategy(
-                    { usernameField: 'login', passwordField: 'password_hash' },
-                    async (
-                        username: string,
-                        password: string,
-                        done: (error: any, user?: Express.User | false, options?: IVerifyOptions) => void
-                    ) => {
-                        const user: User = await UserService.readByLogin(username);
+        passport.use(
+            new LocalStrategy(
+                { usernameField: 'login', passwordField: 'password_hash' },
+                async (
+                    username: string,
+                    password: string,
+                    done: (error: any, user?: Express.User | false, options?: IVerifyOptions) => void
+                ) => {
+                    const user: User = await UserService.readByLogin(username);
 
-                        if (user.password_hash === password) {
-                            done(null, user);
-                        } else {
-                            done(new StatusException(HttpStatusCode.Unauthorized, 'Unauthorized'), user);
-                        }
+                    if (user.password_hash === password) {
+                        done(null, user);
+                    } else {
+                        done(new StatusException(HttpStatusCode.Unauthorized, 'Unauthorized'), user);
                     }
-                )
-            );
-
-            this.isInitialized = true;
-        }
+                }
+            )
+        );
 
         return passport.initialize();
     }

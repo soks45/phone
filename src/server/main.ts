@@ -1,10 +1,11 @@
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import connectPgSimple from 'connect-pg-simple';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import express, { Express } from 'express';
-import session, { MemoryStore } from 'express-session';
+import session from 'express-session';
 import logger from 'morgan';
 
 import { AppController } from '@server/app/app.controller';
@@ -30,9 +31,10 @@ async function run(): Promise<void> {
                 secret: cookieSecret,
                 resave: false,
                 saveUninitialized: true,
-                cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 }, // 30 days
-                store: new MemoryStore({
-                    captureRejections: true,
+                cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 }, // 7 days
+                store: new (connectPgSimple(session))({
+                    pool: DatabaseService,
+                    tableName: 'session',
                 }),
             })
         )
