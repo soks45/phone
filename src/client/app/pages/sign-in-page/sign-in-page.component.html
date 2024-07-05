@@ -4,29 +4,40 @@
             class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700"
         >
             <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
-                <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                    Войти в Livepoll
-                </h1>
-                <form class="space-y-4 md:space-y-6" action="/auth" method="post">
-                    <div>
-                        <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                            >Введите имя</label
-                        >
-                        <input
-                            type="text"
-                            name="name"
-                            id="name"
-                            class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                            placeholder="ваше имя"
-                            required
-                        />
+                <form [formGroup]="form" (ngSubmit)="onSubmit()">
+                    <div class="tui-row tui-row_sme">
+                        <div class="tui-col_12">
+                            <h3 class="tui-form__header tui-form__header_margin-top_none">Войти в Phone</h3>
+                            <div class="tui-form__row">
+                                <tui-input [formControl]="form.controls.login">
+                                    Логин
+                                    <input tuiTextfield />
+                                    <span class="tui-required"></span>
+                                </tui-input>
+                                <tui-error
+                                    [formControl]="form.controls.login"
+                                    [error]="[] | tuiFieldError | async"
+                                ></tui-error>
+                            </div>
+                            <div class="tui-form__row">
+                                <tui-input [formControl]="form.controls.password">
+                                    Пароль
+                                    <input tuiTextfield />
+                                    <span class="tui-required"></span>
+                                </tui-input>
+                                <tui-error
+                                    [formControl]="form.controls.password"
+                                    [error]="[] | tuiFieldError | async"
+                                ></tui-error>
+                            </div>
+                            <div class="tui-form__buttons justify-center tui-row_align_center">
+                                <button size="m" tuiButton type="submit" class="tui-form__button">Отправить</button>
+                            </div>
+                        </div>
                     </div>
-                    <button
-                        type="submit"
-                        class="w-full text-black bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-                    >
-                        Войти
-                    </button>
+                    <div class="tui-row mt-5 flex-row justify-center">
+                        <a routerLink="/auth/sign-up" tuiLink> Нет аккаунта? </a>
+                    </div>
                 </form>
             </div>
         </div>

@@ -113,8 +113,7 @@
                 ],
                 "import/newline-after-import": "error",
                 "import/first": "error",
-                "import/no-duplicates": "error",
-                "import/no-extraneous-dependencies": "error"
+                "import/no-duplicates": "error"
             }
         }
     ]

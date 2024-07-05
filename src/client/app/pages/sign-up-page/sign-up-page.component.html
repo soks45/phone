@@ -1,1 +1,48 @@
-<p>sign-up-page works!</p>
+<section class="bg-gray-50 dark:bg-gray-900">
+    <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
+        <div
+            class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700"
+        >
+            <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
+                <form [formGroup]="form" (ngSubmit)="onSubmit()">
+                    <div class="tui-row tui-row_sme">
+                        <div class="tui-col_12">
+                            <h3 class="tui-form__header tui-form__header_margin-top_none">Регистрация в Phone</h3>
+                            <div class="tui-form__row">
+                                <tui-input [formControl]="form.controls.login">
+                                    Логин
+                                    <input tuiTextfield />
+                                    <span class="tui-required"></span>
+                                </tui-input>
+                                <tui-error
+                                    [formControl]="form.controls.login"
+                                    [error]="[] | tuiFieldError | async"
+                                ></tui-error>
+                            </div>
+                            <div class="tui-form__row">
+                                <tui-input [formControl]="form.controls.password">
+                                    Пароль
+                                    <input tuiTextfield />
+                                    <span class="tui-required"></span>
+                                </tui-input>
+                                <tui-error
+                                    [formControl]="form.controls.password"
+                                    [error]="[] | tuiFieldError | async"
+                                ></tui-error>
+                            </div>
+                            <div class="tui-form__buttons justify-center tui-row_align_center">
+                                <button size="m" tuiButton type="submit" class="tui-form__button">Отправить</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tui-row mt-5 flex-row justify-center">
+                        <span>
+                            Уже есть аккаунт?
+                            <a href="/auth/sign-in" tuiLink> Войти </a>
+                        </span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
