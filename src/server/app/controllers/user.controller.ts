@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 
 import { UserService } from '@server/services/user.service';
 import idSchema from '@server/validations/id.schema';
@@ -8,12 +8,16 @@ import { UserData } from '@shared/models/user.data';
 
 const userController = express
     .Router()
+    .get('/who-am-i', async (req: Request, res: Response, next: NextFunction) => {
+        res.status(200).json(req.user);
+    })
     .get('/:id', async (req, res, next) => {
         const id: number = Number(req.params.id);
 
         const { error } = idSchema(id);
         if (error) {
             res.status(400).json({ error });
+            return;
         }
 
         try {
@@ -29,6 +33,7 @@ const userController = express
         const { error } = userSchema(data);
         if (error) {
             res.status(400).json({ error });
+            return;
         }
 
         try {
@@ -45,10 +50,12 @@ const userController = express
         const idValidation = idSchema(id);
         if (idValidation.error) {
             res.status(400).json({ error: idValidation.error });
+            return;
         }
         const userDataValidation = userSchema(data);
         if (userDataValidation.error) {
             res.status(400).json({ error: userDataValidation.error });
+            return;
         }
 
         try {
@@ -64,6 +71,7 @@ const userController = express
         const { error } = idSchema(id);
         if (error) {
             res.status(400).json({ error });
+            return;
         }
 
         try {

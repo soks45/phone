@@ -9,6 +9,9 @@ class UserService {
     async read(id: number): Promise<User> {
         return UserRepository.read(id);
     }
+    async readByLogin(login: string): Promise<User> {
+        return UserRepository.readByLogin(login);
+    }
     async update(id: number, data: UserData): Promise<void> {
         await UserRepository.update(id, data);
     }

@@ -23,6 +23,18 @@ class UserRepository {
 
         return result.rows[0];
     }
+    async readByLogin(login: string): Promise<User> {
+        const result = await DatabaseService.query<User>(
+            'SELECT * FROM user_data WHERE login = $1 and is_active = true',
+            [login]
+        );
+
+        if (!result.rows[0]) {
+            throw new DatabaseException(`User not found. Login: ${login}`);
+        }
+
+        return result.rows[0];
+    }
     async update(id: number, data: UserData): Promise<void> {
         await DatabaseService.query(
             'UPDATE user_data SET login = $1, email = $2, password_hash = $3 WHERE id = $4 and is_active = true',
