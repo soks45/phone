@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 
 import { UserService } from '@server/services/user.service';
 import idSchema from '@server/validations/id.schema';
@@ -8,7 +8,7 @@ import { UserData } from '@shared/models/user.data';
 
 const userController = express
     .Router()
-    .get('/who-am-i', async (req: Request, res: Response, next: NextFunction) => {
+    .get('/who-am-i', (req: Request, res: Response) => {
         res.status(200).json(req.user);
     })
     .get('/:id', async (req, res, next) => {

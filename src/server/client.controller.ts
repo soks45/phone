@@ -1,12 +1,12 @@
-import * as path from 'node:path';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { APP_BASE_HREF } from '@angular/common';
 import { CommonEngine } from '@angular/ssr';
 
-import express, { Request, Response, NextFunction } from 'express';
+import express, { Request, Response, NextFunction, Router } from 'express';
 
+import { CLIENT_COOKIE_TOKEN } from '@client/app/tokens/client-cookie.token';
 import bootstrap from '@client/main.server';
 
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
@@ -19,8 +19,7 @@ const url = (req: Request) => {
     return ` ${protocol}://${headers.host}${originalUrl}`;
 };
 
-const clientController = express
-    .Router()
+const clientController = Router()
     /** Serve static files, e.g. SSG`ed pages */
     .get(
         '**',
@@ -29,12 +28,6 @@ const clientController = express
             index: 'index.html',
         })
     )
-    /** Serve CSR pages */
-    .get('**', (req: Request, res: Response, next: NextFunction) => {
-        console.log(`CSR: ${url(req)}`);
-
-        res.sendFile(path.join(browserDistFolder, 'index.csr.html'));
-    })
     /** Serve SSR pages */
     .get('**', (req: Request, res: Response, next: NextFunction) => {
         console.log(`SSR: ${url(req)}`);
@@ -45,7 +38,11 @@ const clientController = express
                 documentFilePath: indexHtml,
                 url: url(req),
                 publicPath: browserDistFolder,
-                providers: [{ provide: APP_BASE_HREF, useValue: req.baseUrl }],
+                inlineCriticalCss: false,
+                providers: [
+                    { provide: APP_BASE_HREF, useValue: req.baseUrl },
+                    { provide: CLIENT_COOKIE_TOKEN, useValue: req.headers.cookie },
+                ],
             })
             .then((html) => res.send(html))
             .catch((err) => next(err));

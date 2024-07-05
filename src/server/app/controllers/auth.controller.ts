@@ -27,8 +27,13 @@ const createUser = async (req: express.Request, res: express.Response, next: exp
 
 const authController = express
     .Router()
-    .use(validateUserData)
-    .post('/login-password-strategy', AuthenticateService.authenticateLoginPassword)
-    .post('/login-password-strategy/register', createUser, AuthenticateService.authenticateLoginPassword);
+    .post('/login-password-strategy', validateUserData, AuthenticateService.authenticateLoginPassword)
+    .post(
+        '/login-password-strategy/register',
+        validateUserData,
+        createUser,
+        AuthenticateService.authenticateLoginPassword
+    )
+    .post('/logout', AuthenticateService.logout);
 
 export { authController as AuthController };

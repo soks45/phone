@@ -22,6 +22,10 @@
                 },
                 "@schematics/angular:service": {
                     "skipTests": true
+                },
+                "@schematics/angular:interceptor": {
+                    "skipTests": true,
+                    "functional": false
                 }
             },
             "root": "",
@@ -56,7 +60,7 @@
                         ],
                         "scripts": [],
                         "server": "src/client/main.server.ts",
-                        "prerender": true,
+                        "prerender": false,
                         "ssr": {
                             "entry": "src/server/main.ts"
                         }

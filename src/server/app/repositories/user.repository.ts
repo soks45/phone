@@ -1,6 +1,7 @@
 import { DatabaseException } from '@server/exceptions/database.exception';
 import { DatabaseService } from '@server/services/database.service';
 import { User } from '@shared/models/user';
+import { UserFull } from '@shared/models/user-full';
 import { UserData } from '@shared/models/user.data';
 
 class UserRepository {
@@ -13,9 +14,10 @@ class UserRepository {
         return result.rows[0].id;
     }
     async read(id: number): Promise<User> {
-        const result = await DatabaseService.query<User>('SELECT * FROM user_data WHERE id = $1 and is_active = true', [
-            id,
-        ]);
+        const result = await DatabaseService.query<User>(
+            'SELECT id, email, login FROM user_data WHERE id = $1 and is_active = true',
+            [id]
+        );
 
         if (!result.rows[0]) {
             throw new DatabaseException(`User not found. Id: ${id}`);
@@ -25,6 +27,18 @@ class UserRepository {
     }
     async readByLogin(login: string): Promise<User> {
         const result = await DatabaseService.query<User>(
+            'SELECT id, email, login FROM user_data WHERE login = $1 and is_active = true',
+            [login]
+        );
+
+        if (!result.rows[0]) {
+            throw new DatabaseException(`User not found. Login: ${login}`);
+        }
+
+        return result.rows[0];
+    }
+    async readByLoginFull(login: string): Promise<UserFull> {
+        const result = await DatabaseService.query<UserFull>(
             'SELECT * FROM user_data WHERE login = $1 and is_active = true',
             [login]
         );
@@ -41,6 +55,7 @@ class UserRepository {
             [data.login, data.email, data.password_hash, id]
         );
     }
+
     async delete(id: number): Promise<void> {
         await DatabaseService.query('UPDATE user_data SET is_active = $1 WHERE id = $2', [true, id]);
     }

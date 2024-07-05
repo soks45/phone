@@ -20,11 +20,11 @@
                                 ></tui-error>
                             </div>
                             <div class="tui-form__row">
-                                <tui-input [formControl]="form.controls.password">
+                                <tui-input-password [formControl]="form.controls.password">
                                     Пароль
                                     <input tuiTextfield />
                                     <span class="tui-required"></span>
-                                </tui-input>
+                                </tui-input-password>
                                 <tui-error
                                     [formControl]="form.controls.password"
                                     [error]="[] | tuiFieldError | async"

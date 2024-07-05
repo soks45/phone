@@ -2,10 +2,10 @@ import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { TuiButtonModule, TuiErrorModule, TuiHintModule, TuiLinkModule } from '@taiga-ui/core';
-import { TuiFieldErrorPipeModule, TuiInputModule } from '@taiga-ui/kit';
+import { TuiFieldErrorPipeModule, TuiInputModule, TuiInputPasswordModule } from '@taiga-ui/kit';
 
 import { AuthService } from '@client/services/auth.service';
 
@@ -27,6 +27,7 @@ interface SignInFormControls {
         TuiButtonModule,
         TuiLinkModule,
         RouterLink,
+        TuiInputPasswordModule,
     ],
     templateUrl: './sign-in-page.component.html',
     styleUrl: './sign-in-page.component.scss',
@@ -40,7 +41,8 @@ export class SignInPageComponent {
 
     constructor(
         private readonly authService: AuthService,
-        private readonly destroyRef: DestroyRef
+        private readonly destroyRef: DestroyRef,
+        private readonly router: Router
     ) {}
 
     public onSubmit(): void {
@@ -52,7 +54,7 @@ export class SignInPageComponent {
                     password_hash: this.form.getRawValue().password,
                 })
                 .pipe(takeUntilDestroyed(this.destroyRef))
-                .subscribe();
+                .subscribe(() => this.router.navigate(['/call']));
         }
     }
 }

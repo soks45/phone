@@ -1,6 +1,6 @@
-import { provideHttpClient, withFetch } from '@angular/common/http';
-import { ApplicationConfig, provideZoneChangeDetection, importProvidersFrom } from '@angular/core';
-import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+import { provideHttpClient, withFetch, withInterceptorsFromDi } from '@angular/common/http';
+import { ApplicationConfig, provideZoneChangeDetection, importProvidersFrom, APP_INITIALIZER } from '@angular/core';
+import { provideClientHydration, withEventReplay, withHttpTransferCacheOptions } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 
@@ -9,16 +9,17 @@ import { TUI_LANGUAGE, TUI_RUSSIAN_LANGUAGE } from '@taiga-ui/i18n';
 import { of } from 'rxjs';
 
 import { API_TOKEN } from '@client/app/tokens/api.token';
+import { AuthService } from '@client/services/auth.service';
 
 import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
     providers: [
         provideAnimations(),
-        provideZoneChangeDetection({ eventCoalescing: true, ignoreChangesOutsideZone: true, runCoalescing: true }),
-        provideHttpClient(withFetch()),
+        provideZoneChangeDetection(),
+        provideClientHydration(withEventReplay(), withHttpTransferCacheOptions({})),
+        provideHttpClient(withFetch(), withInterceptorsFromDi()),
         provideRouter(routes),
-        provideClientHydration(withEventReplay()),
         importProvidersFrom(TuiRootModule),
         {
             provide: TUI_LANGUAGE,
@@ -27,6 +28,12 @@ export const appConfig: ApplicationConfig = {
         {
             provide: API_TOKEN,
             useValue: '/api',
+        },
+        {
+            provide: APP_INITIALIZER,
+            useFactory: (authService: AuthService) => () => authService.initAuthentication(),
+            deps: [AuthService],
+            multi: true,
         },
     ],
 };

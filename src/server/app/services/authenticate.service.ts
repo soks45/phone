@@ -8,6 +8,7 @@ import passportLocal, { IVerifyOptions } from 'passport-local';
 import { StatusException } from '@server/exceptions/status.exception';
 import { UserService } from '@server/services/user.service';
 import { User } from '@shared/models/user';
+import { UserFull } from '@shared/models/user-full';
 
 const LocalStrategy = passportLocal.Strategy;
 
@@ -37,6 +38,10 @@ class AuthenticateService {
         })(req, res, next);
     };
 
+    readonly logout = (req: Request, res: Response): void => {
+        req.logout(() => res.status(200).json({}));
+    };
+
     initialize(): Handler {
         passport.serializeUser((user, done) => {
             done(null, {
@@ -57,7 +62,7 @@ class AuthenticateService {
                     password: string,
                     done: (error: any, user?: Express.User | false, options?: IVerifyOptions) => void
                 ) => {
-                    const user: User = await UserService.readByLogin(username);
+                    const user: UserFull = await UserService.readByLoginFull(username);
 
                     if (user.password_hash === password) {
                         done(null, user);
