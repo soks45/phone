@@ -1,0 +1,124 @@
+.section {
+    scroll-snap-align: start;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+
+    &__content {
+        padding: 0 2.5rem;
+        max-width: 1260px;
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: row;
+        justify-content: space-between;
+
+        &__item {
+            width: 45%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 1rem;
+        }
+    }
+
+    &--welcome-section {
+        padding-top: var(--header-height);
+        background-image: url('public/bg_light.webp');
+        background-size: cover;
+        background-repeat: no-repeat;
+    }
+}
+
+.tryout-button-wrapper {
+    position: relative;
+    padding-bottom: 3rem;
+    padding-left: 1rem;
+}
+
+.coding-image {
+    margin-top: 2rem;
+}
+.highlight {
+    position: relative;
+    white-space: nowrap;
+    &::after {
+        transition: 500ms ease-in-out;
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 10px;
+        background-color: var(--tui-accent);
+        border-radius: 5px;
+        content: ' ';
+    }
+
+    &:hover {
+        &::after {
+            position: absolute;
+            transform: scale(1.02);
+            height: 10px;
+            background-color: var(--tui-accent);
+            border-radius: 5px;
+            content: ' ';
+        }
+    }
+}
+
+.highlight--small {
+    position: relative;
+    white-space: nowrap;
+    &::after {
+        transition: 500ms ease-in-out;
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -2px;
+        height: 3px;
+        background-color: var(--tui-accent);
+        border-radius: 3px;
+        content: ' ';
+    }
+}
+
+@media screen and (max-width: 1260px) {
+    .section {
+        &__content {
+            justify-content: center;
+            align-items: center;
+            &__item {
+                width: 60%;
+                max-width: 480px;
+                &--secondary {
+                    display: none;
+                }
+            }
+        }
+
+        &__header {
+            font: var(--tui-font-heading-2);
+            word-break: break-word;
+        }
+    }
+    .tryout-button-wrapper {
+        padding: 1rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+}
+
+@media screen and (max-width: 375px) {
+    .section {
+        &__content {
+            padding: 0;
+        }
+
+        &__header {
+            font: var(--tui-font-heading-3);
+            word-break: break-word;
+        }
+    }
+}

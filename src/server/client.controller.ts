@@ -1,3 +1,4 @@
+import * as path from 'node:path';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -29,7 +30,7 @@ const clientController = Router()
         })
     )
     /** Serve SSR pages */
-    .get('**', (req: Request, res: Response, next: NextFunction) => {
+    .get('/', (req: Request, res: Response, next: NextFunction) => {
         console.log(`SSR: ${url(req)}`);
 
         commonEngine
@@ -46,6 +47,12 @@ const clientController = Router()
             })
             .then((html) => res.send(html))
             .catch((err) => next(err));
+    })
+    /** Serve CSR pages */
+    .get('**', (req: Request, res: Response, next: NextFunction) => {
+        console.log(`CSR: ${url(req)}`);
+
+        res.sendFile(path.join(browserDistFolder, 'index.csr.html'));
     });
 
 export { clientController as ClientController };

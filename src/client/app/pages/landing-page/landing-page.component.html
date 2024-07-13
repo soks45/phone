@@ -1,1 +1,19 @@
-<p>landing-page works!</p>
+<section class="section section--welcome-section">
+    <div class="section__content">
+        <div class="section__content__item">
+            <h1 class="tui-text_h1 section__header">
+                <a routerLink="/call" class="highlight">Звоните</a> с любого устройства
+            </h1>
+            <p class="tui-text_body-xl">
+                Общайтесь с коллегами, клиентами и близкими по всему миру! Безопасное шифрование данных для защиты
+                конфиденциальности
+            </p>
+            <div class="tryout-button-wrapper">
+                <a class="tryout-button" tuiButton [appearance]="'primary'" routerLink="/call">Попробовать</a>
+            </div>
+        </div>
+        <div class="section__content__item section__content__item--secondary">
+            <img src="call.webp" alt="call-logo" />
+        </div>
+    </div>
+</section>

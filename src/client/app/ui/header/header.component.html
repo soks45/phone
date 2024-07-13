@@ -1,36 +1,24 @@
-<header class="flex border-b py-4 px-4 sm:px-10 bg-white font-sans min-h-[70px] tracking-wide relative z-50">
-    <div class="flex flex-wrap items-center gap-4 w-full">
-        <a routerLink="/"><img ngSrc="/logo.webp" alt="logo" [width]="48" [height]="48" /> </a>
+<header class="flex flex-row py-4 px-4 sm:px-10 font-sans min-h-[70px] tracking-wide relative">
+    <div class="header__left-section w-40 flex text-center">
+        <a routerLink="/" class="logo-name">Звонки</a>
+    </div>
 
-        @if (isAuthenticated()) {
-            <div
-                id="collapseMenu"
-                class="lg:!flex lg:flex-auto lg:ml-12 max-lg:hidden max-lg:before:fixed max-lg:before:bg-black max-lg:before:opacity-50 max-lg:before:inset-0 max-lg:before:z-50"
-            >
-                <div
-                    class="lg:!flex lg:flex-auto max-lg:fixed max-lg:bg-white max-lg:w-1/2 max-lg:min-w-[300px] max-lg:top-0 max-lg:left-0 max-lg:p-6 max-lg:h-full max-lg:shadow-md max-lg:overflow-auto z-50"
-                >
-                    <ul class="lg:flex lg:gap-x-8 max-lg:space-y-2">
-                        <li class="max-lg:border-b max-lg:py-3">
-                            <a routerLink="/call" class="hover:text-[#007bff] text-gray-600 block font-bold text-[15px]"
-                                >Звонки</a
-                            >
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        }
-
+    <div class="header-content">
+        <a class="tui-text_body-l header-content__item header-content__item--highlighted" routerLink="/call"
+            >Позвонить</a
+        >
+    </div>
+    <div class="header__right-section">
         @if (!isAuthenticated()) {
-            <div class="flex items-center ml-auto space-x-6">
-                <a routerLink="/auth" class="hover:text-[#007bff] text-gray-600 block font-bold text-[15px]">Log in</a>
-            </div>
+            <a class="header__login tui-text_body-l" routerLink="/auth">
+                Войти
+                <button tuiIconButton shape="rounded" size="s" icon="tuiIconArrowUpRight" appearance="icon"></button>
+            </a>
         } @else {
-            <div class="flex items-center ml-auto space-x-6">
-                <a routerLink="/auth/logout" class="hover:text-[#007bff] text-gray-600 block font-bold text-[15px]"
-                    >Выйти</a
-                >
-            </div>
+            <a class="header__login tui-text_body-l" routerLink="/auth/logout">
+                Выйти
+                <button tuiIconButton shape="rounded" size="s" icon="tuiIconArrowUpRight" appearance="icon"></button>
+            </a>
         }
     </div>
 </header>

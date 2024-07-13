@@ -1,0 +1,29 @@
+.section {
+    scroll-snap-align: start;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    padding-top: var(--header-height);
+    background-image: url('public/bg_light.webp');
+    background-size: cover;
+    background-repeat: no-repeat;
+
+    &__content {
+        padding: 0 2.5rem;
+        max-width: 1260px;
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: row;
+        justify-content: space-between;
+
+        &__item {
+            width: 45%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 1rem;
+        }
+    }
+}
