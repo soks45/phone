@@ -1,7 +1,10 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, Signal, viewChild } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 
+import { NAVIGATOR } from '@ng-web-apis/common';
 import { TuiButtonModule, TuiLinkModule } from '@taiga-ui/core';
+import { from } from 'rxjs';
 
 import { HeaderComponent } from '@client/app/ui/header/header.component';
 
@@ -13,4 +16,17 @@ import { HeaderComponent } from '@client/app/ui/header/header.component';
     styleUrl: './call-page.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CallPageComponent {}
+export class CallPageComponent {
+    private readonly localVideo: Signal<HTMLVideoElement> = viewChild.required<HTMLVideoElement>('localVideo');
+    private readonly remoteVideo: Signal<HTMLVideoElement> = viewChild.required<HTMLVideoElement>('remoteVideo');
+    private readonly navigator: Navigator = inject(NAVIGATOR);
+    private readonly destroyRef: DestroyRef = inject(DestroyRef);
+    private readonly localMediaStream: Signal<MediaStream | undefined> = toSignal<MediaStream>(
+        from(
+            this.navigator.mediaDevices.getUserMedia({
+                audio: true,
+                video: true,
+            })
+        )
+    );
+}

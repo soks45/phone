@@ -12,7 +12,12 @@ async function run(): Promise<void> {
     dotenv.config();
     const port = process.env['SERVER_PORT'] || 4000;
 
-    await DatabaseService.connect();
+    try {
+        await DatabaseService.connect();
+        console.log('Database Connected');
+    } catch (error) {
+        console.error(error);
+    }
 
     express()
         .use(express.json())

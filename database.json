@@ -13,6 +13,8 @@
         "password": {
             "ENV": "DATABASE_PASSWORD"
         },
-        "database": "phone"
+        "database": {
+            "ENV": "DATABASE_NAME"
+        }
     }
 }

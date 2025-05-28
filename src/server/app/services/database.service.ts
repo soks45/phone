@@ -10,8 +10,10 @@ const config: ClientConfig = {
     host: process.env['DATABASE_HOST'],
     port: Number(process.env['DATABASE_PORT']),
     password: process.env['DATABASE_PASSWORD'],
-    application_name: 'phone',
+    application_name: process.env['DATABASE_NAME'],
 };
+
+console.log(config);
 
 class DatabaseService extends Pool {
     constructor(config: ClientConfig) {
