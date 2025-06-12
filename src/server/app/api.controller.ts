@@ -6,6 +6,7 @@ import session from 'express-session';
 import logger from 'morgan';
 
 import { AuthController } from '@server/controllers/auth.controller';
+import { ConnectionController } from '@server/controllers/connection.controller';
 import { UserController } from '@server/controllers/user.controller';
 import { AuthenticateService } from '@server/services/authenticate.service';
 import { DatabaseService } from '@server/services/database.service';
@@ -34,6 +35,7 @@ const apiController = Router()
     .use(AuthenticateService.session())
     /** controllers */
     .use('/auth', AuthController)
-    .use('/user', AuthenticateService.isAuthenticated, UserController);
+    .use('/user', AuthenticateService.isAuthenticated, UserController)
+    .use('/connection', /*AuthenticateService.isAuthenticated,*/ ConnectionController);
 
 export { apiController as ApiController };

@@ -63,7 +63,8 @@
                         "prerender": false,
                         "ssr": {
                             "entry": "src/server/main.ts"
-                        }
+                        },
+                        "externalDependencies": ["wrtc"]
                     },
                     "configurations": {
                         "production": {

@@ -55,7 +55,6 @@ class UserRepository {
             [data.login, data.email, data.password_hash, id]
         );
     }
-
     async delete(id: number): Promise<void> {
         await DatabaseService.query('UPDATE user_data SET is_active = $1 WHERE id = $2', [true, id]);
     }

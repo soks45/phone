@@ -50,8 +50,12 @@ class AuthenticateService {
         });
 
         passport.deserializeUser(async ({ id }: { id: number }, done) => {
-            const user: User = await UserService.read(id);
-            done(null, user);
+            try {
+                const user: User = await UserService.read(id);
+                done(null, user);
+            } catch (err) {
+                done(err);
+            }
         });
 
         passport.use(
@@ -62,12 +66,16 @@ class AuthenticateService {
                     password: string,
                     done: (error: any, user?: Express.User | false, options?: IVerifyOptions) => void
                 ) => {
-                    const user: UserFull = await UserService.readByLoginFull(username);
+                    try {
+                        const user: UserFull = await UserService.readByLoginFull(username);
 
-                    if (user.password_hash === password) {
-                        done(null, user);
-                    } else {
-                        done(new StatusException(HttpStatusCode.Unauthorized, 'Unauthorized'), user);
+                        if (user.password_hash === password) {
+                            done(null, user);
+                        } else {
+                            done(new StatusException(HttpStatusCode.Unauthorized, 'Unauthorized'), user);
+                        }
+                    } catch (err) {
+                        done(new StatusException(HttpStatusCode.Unauthorized, 'Unauthorized'));
                     }
                 }
             )
