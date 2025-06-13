@@ -1,32 +1,39 @@
 import { filter, take } from 'rxjs';
 
-import { WebRtcConnection } from '@server/app/models/web-rtc-connection';
+import { WebRtcConnectionServer } from '@server/app/models/web-rtc-connection.server';
 import { ConnectionRepository } from '@server/repositories/connection.repository';
 
 class ConnectionService {
-    private readonly currentConnections: Map<string, WebRtcConnection> = new Map<string, WebRtcConnection>();
+    private readonly currentConnections: Map<string, WebRtcConnectionServer> = new Map<
+        string,
+        WebRtcConnectionServer
+    >();
 
-    async createConnection(): Promise<WebRtcConnection> {
+    async createConnection(): Promise<WebRtcConnectionServer> {
         const newConnection = await ConnectionRepository.create();
-        const wrtcConnection = new WebRtcConnection(newConnection.id);
+        const wrtcConnection = new WebRtcConnectionServer(newConnection.id);
         this.observeCloseConnection(wrtcConnection);
-        await wrtcConnection.doOffer();
+        try {
+            await wrtcConnection.doOffer();
+        } catch (err) {
+            throw err;
+        }
         this.currentConnections.set(newConnection.id, wrtcConnection);
 
         return wrtcConnection;
     }
     async closeConnection(id: string): Promise<void> {
+        this.getConnection(id)?.close();
         await ConnectionRepository.close(id);
-        this.currentConnections.delete(id);
     }
-    getConnection(id: string): WebRtcConnection | undefined {
+    getConnection(id: string): WebRtcConnectionServer | undefined {
         return this.currentConnections.get(id);
     }
-    getConnections(): WebRtcConnection[] {
+    getConnections(): WebRtcConnectionServer[] {
         return [...this.currentConnections.values()];
     }
 
-    private observeCloseConnection(wrtcConnection: WebRtcConnection): void {
+    private observeCloseConnection(wrtcConnection: WebRtcConnectionServer): void {
         wrtcConnection
             .pipe(
                 filter((isOpened) => !isOpened),

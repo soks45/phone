@@ -1,10 +1,10 @@
 import wrtc from 'wrtc';
 
 import { BaseConnection } from '@server/app/models/base-connection';
-import { AppException } from '@server/exceptions/app.exception';
+import { AppException } from '@shared/exceptions/app.exception';
 import { WebRtcConnectionDto } from '@shared/models/web-rtc-connection.dto';
 
-export class WebRtcConnection extends BaseConnection {
+export class WebRtcConnectionServer extends BaseConnection {
     private readonly TIME_TO_CONNECTED = 10000;
     private readonly TIME_TO_HOST_CANDIDATES = 3000;
     private readonly TIME_TO_RECONNECTED = 10000;
@@ -58,6 +58,13 @@ export class WebRtcConnection extends BaseConnection {
     }
 
     async doOffer(): Promise<void> {
+        const audioTransceiver = this.peerConnection.addTransceiver('audio');
+        const videoTransceiver = this.peerConnection.addTransceiver('video');
+        await Promise.all([
+            audioTransceiver.sender.replaceTrack(audioTransceiver.receiver.track),
+            videoTransceiver.sender.replaceTrack(videoTransceiver.receiver.track),
+        ]);
+
         const offer = await this.peerConnection.createOffer();
         await this.peerConnection.setLocalDescription(offer);
         try {

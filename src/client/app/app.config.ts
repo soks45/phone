@@ -1,4 +1,4 @@
-import { provideHttpClient, withFetch, withInterceptorsFromDi } from '@angular/common/http';
+import { HttpClient, provideHttpClient, withFetch, withInterceptorsFromDi } from '@angular/common/http';
 import { ApplicationConfig, provideZoneChangeDetection, importProvidersFrom, APP_INITIALIZER } from '@angular/core';
 import { provideClientHydration, withEventReplay, withHttpTransferCacheOptions } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
@@ -10,6 +10,7 @@ import { of } from 'rxjs';
 
 import { API_TOKEN } from '@client/app/tokens/api.token';
 import { AuthService } from '@client/services/auth.service';
+import { WebRtcBrowserConnectionService, WebRtcConnectionService } from '@client/services/web-rtc-connection.service';
 
 import { routes } from './app.routes';
 
@@ -34,6 +35,13 @@ export const appConfig: ApplicationConfig = {
             useFactory: (authService: AuthService) => () => authService.initAuthentication(),
             deps: [AuthService],
             multi: true,
+        },
+        {
+            provide: WebRtcConnectionService,
+            useFactory: (httpClient: HttpClient, api: string) => {
+                return new WebRtcBrowserConnectionService(httpClient, api);
+            },
+            deps: [HttpClient, API_TOKEN],
         },
     ],
 };

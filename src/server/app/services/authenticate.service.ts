@@ -5,8 +5,8 @@ import { RequestHandler } from 'express-serve-static-core';
 import passport from 'passport';
 import passportLocal, { IVerifyOptions } from 'passport-local';
 
-import { StatusException } from '@server/exceptions/status.exception';
 import { UserService } from '@server/services/user.service';
+import { StatusException } from '@shared/exceptions/status.exception';
 import { User } from '@shared/models/user';
 import { UserFull } from '@shared/models/user-full';
 
