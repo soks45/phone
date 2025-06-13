@@ -1,6 +1,7 @@
 export interface WsEvents {
     message: string;
     error: string;
+    isActive: boolean;
 }
 
 export interface WsMessage<K extends keyof WsEvents = keyof WsEvents> {

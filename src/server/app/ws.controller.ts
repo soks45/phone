@@ -2,31 +2,24 @@ import { Express, Router } from 'express';
 import expressWs from 'express-ws';
 
 import { authentication } from '@server/app/middlewares/authentication';
-import { deserializeWsEvent, WsMessage } from '@shared/models/ws-event';
+import { ActiveUsersService } from '@server/services/active-users.service';
 
 const wsController = (app: Express) => {
     expressWs(app);
 
     return Router()
         .use(authentication)
-        .ws('/', (ws, req) => {
-            ws.on('open', () => {});
+        .ws('/active-user', (ws, req) => {
+            if (req.isAuthenticated() && req.user) {
+                ActiveUsersService.add(req.user.id);
 
-            ws.on('message', (msg) => {
-                if (typeof msg === 'string') {
-                    const deserialized: WsMessage = deserializeWsEvent(msg);
-                    switch (deserialized.type) {
-                        case 'message': {
-                            break;
-                        }
-                        case 'error': {
-                            break;
-                        }
-                    }
-                }
-            });
+                ws.on('close', () => {
+                    ActiveUsersService.remove(req.user.id);
+                });
+                return;
+            }
 
-            ws.on('close', () => {});
+            ws.close();
         });
 };
 

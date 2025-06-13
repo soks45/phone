@@ -25,7 +25,6 @@ export class LogoutPageComponent implements OnInit {
             .logout()
             .pipe(
                 finalize(() => {
-                    console.log('Logged out');
                     this.router.navigate(['/auth']);
                 }),
                 takeUntilDestroyed(this.destroyRef)

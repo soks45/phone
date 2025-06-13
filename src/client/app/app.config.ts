@@ -1,4 +1,3 @@
-import { PlatformLocation } from '@angular/common';
 import { HttpClient, provideHttpClient, withFetch, withInterceptorsFromDi } from '@angular/common/http';
 import { ApplicationConfig, provideZoneChangeDetection, importProvidersFrom, APP_INITIALIZER } from '@angular/core';
 import { provideClientHydration, withEventReplay, withHttpTransferCacheOptions } from '@angular/platform-browser';
@@ -16,10 +15,6 @@ import { WebRtcBrowserConnectionService, WebRtcConnectionService } from '@client
 import { WsClientService, WsService } from '@client/services/ws.service';
 
 import { routes } from './app.routes';
-
-export function getBaseHref(platformLocation: PlatformLocation): string {
-    return platformLocation.getBaseHrefFromDOM();
-}
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -44,6 +39,12 @@ export const appConfig: ApplicationConfig = {
         {
             provide: APP_INITIALIZER,
             useFactory: (authService: AuthService) => () => authService.initAuthentication(),
+            deps: [AuthService],
+            multi: true,
+        },
+        {
+            provide: APP_INITIALIZER,
+            useFactory: (authService: AuthService) => () => authService.initActiveUserObserving(),
             deps: [AuthService],
             multi: true,
         },

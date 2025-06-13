@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 
+import { ActiveUsersService } from '@server/services/active-users.service';
 import { UserService } from '@server/services/user.service';
 import idSchema from '@server/validations/id.schema';
 import userSchema from '@server/validations/user.schema';
@@ -80,6 +81,20 @@ const userController = express
         } catch (err) {
             next(err);
         }
+    })
+    .get('/all/active', (req, res, next) => {
+        res.status(200).json(ActiveUsersService.all());
+    })
+    .get('/:id/active', (req, res, next) => {
+        const id: number = Number(req.params.id);
+
+        const { error } = idSchema(id);
+        if (error) {
+            res.status(400).json({ error });
+            return;
+        }
+
+        res.status(200).json(ActiveUsersService.isActive(id));
     });
 
 export { userController as UserController };

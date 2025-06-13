@@ -16,7 +16,7 @@ class AuthenticateService {
     /**
      * Login Required middleware.
      */
-    readonly isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+    readonly isAuthenticated: RequestHandler = (req: Request, res: Response, next: NextFunction) => {
         if (req.isAuthenticated()) {
             return next();
         } else {

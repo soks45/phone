@@ -15,6 +15,7 @@ export abstract class WebRtcConnectionService {
 /**
  * Should be available only in browser context
  * */
+@Injectable()
 export class WebRtcBrowserConnectionService extends WebRtcConnectionService {
     constructor(
         private readonly http: HttpClient,
