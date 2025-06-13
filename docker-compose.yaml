@@ -29,6 +29,15 @@ services:
         networks:
             - app-network
 
+    nginx:
+        image: nginx
+        container_name: nginx
+        volumes:
+            - ./nginx:/etc/nginx/conf.d/
+        ports:
+            - "443:443"
+            - "80:80"
+
 volumes:
     postgres:
 

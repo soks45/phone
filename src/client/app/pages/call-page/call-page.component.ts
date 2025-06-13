@@ -86,9 +86,7 @@ export class CallPageComponent {
             this.webRtcConnectionService
                 .closeConnection(this.remoteConnection)
                 .pipe(takeUntilDestroyed(this.destroyRef))
-                .subscribe((remote: WebRtcConnectionDto) => {
-                    console.log(remote);
-                });
+                .subscribe();
         }
     }
 }
