@@ -1,6 +1,5 @@
 import {
     ChangeDetectionStrategy,
-    ChangeDetectorRef,
     Component,
     DestroyRef,
     effect,
@@ -45,20 +44,16 @@ export class CallPageComponent {
 
     constructor(
         private readonly webRtcConnectionService: WebRtcConnectionService,
-        private destroyRef: DestroyRef,
-        private readonly cdr: ChangeDetectorRef
+        private readonly destroyRef: DestroyRef
     ) {
         effect(() => {
             const localMedia = this.localMediaStream();
             const videoTag = this.localVideo().nativeElement;
-            const remoteVideoTag = this.remoteVideo().nativeElement;
             if (localMedia) {
                 videoTag.srcObject = localMedia;
                 videoTag.autoplay = true;
                 videoTag.muted = true;
             }
-            remoteVideoTag.autoplay = true;
-            remoteVideoTag.muted = false;
         });
     }
 
@@ -74,6 +69,9 @@ export class CallPageComponent {
                 .pipe(takeUntilDestroyed(this.destroyRef))
                 .subscribe((remote: WebRtcConnectionDto) => {
                     this.remoteConnection = remote;
+                    const remoteVideoTag = this.remoteVideo().nativeElement;
+                    remoteVideoTag.autoplay = true;
+                    remoteVideoTag.muted = false;
                     this.remoteVideo().nativeElement.srcObject = new MediaStream(
                         peerConnection.getReceivers().map(({ track }) => track)
                     );

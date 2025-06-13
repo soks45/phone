@@ -4,7 +4,8 @@ import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
 import express from 'express';
 
-import { ApiController } from '@server/app/api.controller';
+import { RestController } from '@server/app/rest.controller';
+import { WsController } from '@server/app/ws.controller';
 import { ClientController } from '@server/client.controller';
 import { DatabaseService } from '@server/services/database.service';
 
@@ -19,11 +20,13 @@ async function run(): Promise<void> {
         console.error(error);
     }
 
-    express()
-        .use(express.json())
+    const app = express();
+
+    app.use(express.json())
         .use(express.urlencoded({ extended: false }))
         /** api */
-        .use('/api', ApiController)
+        .use('/api', RestController)
+        .use('/ws', WsController(app))
         /** Set up view engine */
         .set('view engine', 'html')
         .set('views', resolve(dirname(fileURLToPath(import.meta.url)), '../browser'))
