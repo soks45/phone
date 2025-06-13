@@ -2,7 +2,7 @@ import { HttpClient, provideHttpClient, withFetch, withInterceptorsFromDi } from
 import { ApplicationConfig, provideZoneChangeDetection, importProvidersFrom, APP_INITIALIZER } from '@angular/core';
 import { provideClientHydration, withEventReplay, withHttpTransferCacheOptions } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
 
 import { TuiRootModule } from '@taiga-ui/core';
 import { TUI_LANGUAGE, TUI_RUSSIAN_LANGUAGE } from '@taiga-ui/i18n';
@@ -22,7 +22,7 @@ export const appConfig: ApplicationConfig = {
         provideZoneChangeDetection(),
         provideClientHydration(withEventReplay(), withHttpTransferCacheOptions({})),
         provideHttpClient(withFetch(), withInterceptorsFromDi()),
-        provideRouter(routes),
+        provideRouter(routes, withComponentInputBinding()),
         importProvidersFrom(TuiRootModule),
         {
             provide: TUI_LANGUAGE,

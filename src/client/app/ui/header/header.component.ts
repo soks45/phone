@@ -1,4 +1,3 @@
-import { NgOptimizedImage } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
@@ -9,7 +8,7 @@ import { AuthService } from '@client/services/auth.service';
 @Component({
     selector: 'app-header',
     standalone: true,
-    imports: [RouterLink, NgOptimizedImage, TuiButtonModule],
+    imports: [RouterLink, TuiButtonModule],
     templateUrl: './header.component.html',
     styleUrl: './header.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,

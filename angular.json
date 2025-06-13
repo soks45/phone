@@ -26,6 +26,10 @@
                 "@schematics/angular:interceptor": {
                     "skipTests": true,
                     "functional": false
+                },
+                "@schematics/angular:resolver": {
+                    "skipTests": true,
+                    "functional": false
                 }
             },
             "root": "",

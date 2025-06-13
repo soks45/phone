@@ -9,12 +9,15 @@ import {
     viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
 
 import { NAVIGATOR } from '@ng-web-apis/common';
 import { TuiButtonModule, TuiLinkModule } from '@taiga-ui/core';
 import { from } from 'rxjs';
 
+import { MeetingService } from '@client/services/meeting.service';
 import { WebRtcConnectionService } from '@client/services/web-rtc-connection.service';
+import { Meeting } from '@shared/models/meeting';
 import { WebRtcConnectionDto } from '@shared/models/web-rtc-connection.dto';
 
 @Component({
@@ -44,7 +47,9 @@ export class CallPageComponent {
 
     constructor(
         private readonly webRtcConnectionService: WebRtcConnectionService,
-        private readonly destroyRef: DestroyRef
+        private readonly destroyRef: DestroyRef,
+        private readonly meetingService: MeetingService,
+        private readonly router: Router
     ) {
         effect(() => {
             const localMedia = this.localMediaStream();
@@ -86,5 +91,12 @@ export class CallPageComponent {
                 .pipe(takeUntilDestroyed(this.destroyRef))
                 .subscribe();
         }
+    }
+
+    createMeeting(): void {
+        this.meetingService
+            .create()
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((meeting: Meeting) => this.router.navigate(['/meeting/', meeting.id]));
     }
 }

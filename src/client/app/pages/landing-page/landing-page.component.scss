@@ -3,7 +3,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 100vh;
+    height: 100%;
 
     &__content {
         padding: 0 2.5rem;
@@ -21,13 +21,6 @@
             justify-content: center;
             gap: 1rem;
         }
-    }
-
-    &--welcome-section {
-        padding-top: var(--header-height);
-        background-image: url('public/bg_light.webp');
-        background-size: cover;
-        background-repeat: no-repeat;
     }
 }
 
