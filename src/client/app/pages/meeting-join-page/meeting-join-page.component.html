@@ -1,0 +1,11 @@
+<div class="h-100dvh flex items-center justify-center">
+    <div
+        class="flex flex-col items-center justify-center p-16 space-y-6 w-full max-w-5xl rounded-3xl bg-black/5 backdrop-blur-sm shadow-xl shadow-black/20 border border-black/10 gap-y-6"
+    >
+        <h1 class="text-xl font-semibold text-center break-words">Конференция: {{ meeting().id }}</h1>
+        <app-video class="w-full max-w-2xl" [srcObject]="localMedia()" controls></app-video>
+        <a size="l" tuiButton class="max-w-2xl" autofocus [routerLink]="['/meeting', meeting().id]">
+            Присоединиться к конференции
+        </a>
+    </div>
+</div>

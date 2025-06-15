@@ -1,11 +1,134 @@
-<div class="h-full flex items-center justify-center">
-    <div
-        class="flex flex-col items-center justify-center p-16 space-y-6 w-full max-w-5xl rounded-3xl bg-black/5 backdrop-blur-sm shadow-xl shadow-black/20 border border-black/10 gap-y-6"
-    >
-        <h1 class="text-xl font-semibold text-center break-words">Конференция: {{ meeting().id }}</h1>
-        <app-video class="w-full max-w-2xl" [srcObject]="localMedia"></app-video>
-        <button size="l" tuiButton class="max-w-2xl" autofocus (click)="joinMeeting()">
-            Присоединиться к конференции
-        </button>
+<div class="h-screen w-screen flex flex-col bg-gray-900 text-white">
+    <div class="flex flex-1 overflow-hidden">
+        <div class="flex-1 flex items-center justify-center bg-black relative">
+            <video autoplay muted playsinline class="max-h-full max-w-full rounded-xl shadow-xl"></video>
+        </div>
     </div>
+
+    <footer class="p-4 border-t border-white/10 bg-gray-800 flex items-center justify-between">
+        <div class="text-sm text-white/60">{{ meeting().id }}</div>
+
+        <div class="flex justify-center gap-4 flex-1">
+            <button
+                tuiIconButton
+                type="button"
+                size="m"
+                appearance="outline"
+                [icon]="audioEnabled() ? 'tuiIconMic' : 'tuiIconMicOff'"
+                (click)="toggleAudio()"
+                tuiTheme="night"
+            ></button>
+
+            <button
+                tuiIconButton
+                type="button"
+                size="m"
+                appearance="outline"
+                [icon]="videoEnabled() ? 'tuiIconVideo' : 'tuiIconVideoOff'"
+                (click)="toggleVideo()"
+                tuiTheme="night"
+            ></button>
+
+            <button
+                tuiIconButton
+                type="button"
+                size="m"
+                appearance="outline"
+                icon="tuiIconPhoneOff"
+                tuiTheme="night"
+            ></button>
+        </div>
+
+        <div class="flex gap-2 ml-4">
+            <button
+                tuiIconButton
+                type="button"
+                size="m"
+                appearance="outline"
+                icon="tuiIconMessageSquare"
+                tuiTheme="night"
+                (click)="toggleChat(true)"
+                (tuiActiveZoneChange)="toggleChat($event)"
+            >
+                <div
+                    class="bg-gray-800 border-l border-white/10 flex flex-col h-full text-white/70 w-80"
+                    *tuiSidebar="chatOpened(); direction: 'right'; autoWidth: true"
+                >
+                    <div class="p-4 border-b border-white/10 text-lg font-semibold">Чат</div>
+
+                    <tui-scrollbar class="p-4 text-sm h-full" tuiMode="onDark">
+                        <div class="flex flex-col-reverse gap-2">
+                            @for (message of messages; track message.text) {
+                                <div
+                                    class="max-w-[75%] px-4 py-2 rounded-lg relative pr-12 min-h-[2.5rem]"
+                                    [ngClass]="{
+                                        'bg-blue-600 text-white': message.isMine,
+                                        'bg-gray-700 text-white/90': !message.isMine,
+                                    }"
+                                >
+                                    @if (!message.isMine) {
+                                        <div class="text-xs font-semibold mb-0.5 text-white/60">
+                                            {{ message.author }}
+                                        </div>
+                                    }
+
+                                    <div class="whitespace-pre-wrap break-words h-full">
+                                        {{ message.text }}
+                                    </div>
+
+                                    <div class="absolute right-2 bottom-1 text-[10px] text-white/40">
+                                        {{ message.time }}
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </tui-scrollbar>
+
+                    <div class="border-t border-white/10 p-4 min-w-80">
+                        <form class="flex gap-2 items-center" [formGroup]="messageForm">
+                            <tui-textarea
+                                [formControl]="messageForm.controls.message"
+                                class="field-medium w-full"
+                                [expandable]="true"
+                                [maxLength]="30"
+                                tuiMode="onDark"
+                            >
+                                Новое сообщение
+                            </tui-textarea>
+                            <button tuiIconButton icon="tuiIconSend" type="submit" appearance="white"></button>
+                        </form>
+                    </div>
+                </div>
+            </button>
+
+            <button
+                tuiIconButton
+                type="button"
+                size="m"
+                appearance="outline"
+                icon="tuiIconUsers"
+                tuiTheme="night"
+                (click)="toggleParticipants(true)"
+                (tuiActiveZoneChange)="toggleParticipants($event)"
+            >
+                <div
+                    class="w-80 bg-gray-800 border-l border-white/10 flex flex-col h-full text-white/70 w-80"
+                    *tuiSidebar="participantsOpened(); direction: 'right'; autoWidth: true"
+                >
+                    <div class="p-4 border-b border-white/10 text-lg font-semibold">Участники</div>
+
+                    <tui-scrollbar class="p-4 text-sm h-full" tuiMode="onDark">
+                        <ul class="space-y-2">
+                            <li *ngFor="let participant of participants()">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
+                                    {{ participant.name }}
+                                </div>
+                            </li>
+                        </ul>
+                    </tui-scrollbar>
+                </div>
+            </button>
+        </div>
+    </footer>
 </div>

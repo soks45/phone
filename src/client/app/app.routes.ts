@@ -7,6 +7,7 @@ import { CallPageComponent } from '@client/pages/call-page/call-page.component';
 import { LandingPageComponent } from '@client/pages/landing-page/landing-page.component';
 import { LogoutPageComponent } from '@client/pages/logout-page/logout-page.component';
 import { MainPageComponent } from '@client/pages/main-page/main-page.component';
+import { MeetingJoinPageComponent } from '@client/pages/meeting-join-page/meeting-join-page.component';
 import { MeetingPageComponent } from '@client/pages/meeting-page/meeting-page.component';
 import { SignInPageComponent } from '@client/pages/sign-in-page/sign-in-page.component';
 import { SignUpPageComponent } from '@client/pages/sign-up-page/sign-up-page.component';
@@ -18,22 +19,35 @@ export const routes: Routes = [
         children: [
             { path: '', component: LandingPageComponent },
             {
-                path: 'call',
-                component: CallPageComponent,
+                path: '',
                 canActivate: [AuthenticatedGuard],
+                children: [
+                    {
+                        path: 'call',
+                        component: CallPageComponent,
+                    },
+                ],
+            },
+        ],
+    },
+    {
+        path: 'meeting/:uuid',
+        resolve: {
+            meeting: MeetingResolver,
+        },
+        data: {
+            inputs: {
+                meeting: 'meeting',
+            },
+        },
+        children: [
+            {
+                path: 'join',
+                component: MeetingJoinPageComponent,
             },
             {
-                path: 'meeting/:uuid',
+                path: '',
                 component: MeetingPageComponent,
-                canActivate: [AuthenticatedGuard],
-                resolve: {
-                    meeting: MeetingResolver,
-                },
-                data: {
-                    inputs: {
-                        meeting: 'meeting',
-                    },
-                },
             },
         ],
     },

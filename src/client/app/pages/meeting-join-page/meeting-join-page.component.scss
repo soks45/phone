@@ -1,0 +1,12 @@
+:host {
+    display: flex;
+    scroll-snap-align: start;
+    height: 100vh;
+    padding-top: var(--header-height);
+    background-image: url('public/bg_light.webp');
+    background-size: cover;
+    background-repeat: no-repeat;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}

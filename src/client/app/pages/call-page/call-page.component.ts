@@ -97,6 +97,6 @@ export class CallPageComponent {
         this.meetingService
             .create()
             .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe((meeting: Meeting) => this.router.navigate(['/meeting/', meeting.id]));
+            .subscribe((meeting: Meeting) => this.router.navigate(['meeting', meeting.id, 'join']));
     }
 }
