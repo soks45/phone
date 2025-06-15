@@ -11,14 +11,14 @@ import { Meeting } from '@shared/models/meeting';
 })
 export class MeetingResolver implements Resolve<Meeting> {
     constructor(
-        private meetingService: MeetingService,
+        private readonly meetingService: MeetingService,
         private readonly router: Router
     ) {}
 
     resolve(route: ActivatedRouteSnapshot): MaybeAsync<Meeting> {
         const uuid = route.paramMap.get('uuid')!;
 
-        return this.meetingService.join(uuid).pipe(
+        return this.meetingService.get(uuid).pipe(
             catchError((err: unknown) => {
                 this.router.navigate(['/']);
 

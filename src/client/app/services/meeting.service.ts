@@ -16,6 +16,10 @@ export class MeetingService {
         private readonly http: HttpClient
     ) {}
 
+    get(id: string): Observable<Meeting> {
+        return this.http.get<Meeting>(`${this.api}/meeting/${id}`);
+    }
+
     create(): Observable<Meeting> {
         return this.http.post<Meeting>(`${this.api}/meeting`, {});
     }

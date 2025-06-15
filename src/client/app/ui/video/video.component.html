@@ -1,0 +1,32 @@
+<div class="relative w-full aspect-video rounded-2xl shadow-xl">
+    <video
+        #video
+        autoplay
+        muted
+        playsinline
+        [srcObject]="srcObject()"
+        class="w-full h-full object-cover border border-black/10 rounded-2xl bg-zinc-900"
+    ></video>
+
+    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-4">
+        <button
+            tuiIconButton
+            type="button"
+            size="m"
+            appearance="outline"
+            [icon]="videoState() ? 'tuiIconVideo' : 'tuiIconVideoOff'"
+            (click)="toggleVideo()"
+            tuiTheme="night"
+        ></button>
+
+        <button
+            tuiIconButton
+            type="button"
+            size="m"
+            appearance="outline"
+            [icon]="audioState() ? 'tuiIconMic' : 'tuiIconMicOff'"
+            (click)="toggleAudio()"
+            tuiTheme="night"
+        ></button>
+    </div>
+</div>

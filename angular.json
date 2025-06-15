@@ -90,6 +90,12 @@
                             "optimization": false,
                             "extractLicenses": false,
                             "sourceMap": true
+                        },
+                        "csr": {
+                            "optimization": false,
+                            "extractLicenses": false,
+                            "sourceMap": true,
+                            "ssr": false
                         }
                     },
                     "defaultConfiguration": "production"
@@ -102,6 +108,10 @@
                         },
                         "development": {
                             "buildTarget": "phone:build:development"
+                        },
+                        "csr": {
+                            "buildTarget": "phone:build:csr",
+                            "proxyConfig": "proxy-conf.json"
                         }
                     },
                     "defaultConfiguration": "development"

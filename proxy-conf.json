@@ -1,0 +1,15 @@
+{
+    "/api": {
+        "target": "https://phone-dev.com",
+        "secure": false,
+        "changeOrigin": true,
+        "logLevel": "debug"
+    },
+    "/ws": {
+        "target": "wss://phone-dev.com",
+        "ws": true,
+        "secure": false,
+        "changeOrigin": true,
+        "logLevel": "debug"
+    }
+}
