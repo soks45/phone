@@ -1,14 +1,17 @@
 <div class="h-screen w-screen flex flex-col bg-gray-900 text-white">
     <div class="flex flex-1 overflow-hidden">
         <div class="flex-1 flex items-center justify-center bg-black relative">
-            <video autoplay muted playsinline class="max-h-full max-w-full rounded-xl shadow-xl"></video>
+            <app-grid>
+                <app-video appGridItem></app-video>
+                <app-video appGridItem></app-video>
+            </app-grid>
         </div>
     </div>
 
     <footer class="p-4 border-t border-white/10 bg-gray-800 flex items-center justify-between">
-        <div class="text-sm text-white/60">{{ meeting().id }}</div>
+        <div class="text-sm text-white/60 flex-1">{{ meeting().id }}</div>
 
-        <div class="flex justify-center gap-4 flex-1">
+        <div class="flex justify-center gap-4">
             <button
                 tuiIconButton
                 type="button"
@@ -33,13 +36,13 @@
                 tuiIconButton
                 type="button"
                 size="m"
-                appearance="outline"
+                appearance="accent"
                 icon="tuiIconPhoneOff"
                 tuiTheme="night"
             ></button>
         </div>
 
-        <div class="flex gap-2 ml-4">
+        <div class="flex gap-2 flex-1 justify-end">
             <button
                 tuiIconButton
                 type="button"

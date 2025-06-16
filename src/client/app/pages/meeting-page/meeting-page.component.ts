@@ -2,11 +2,15 @@ import { NgClass, NgForOf } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, input, Signal, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
+import { ResizeObserverModule } from '@ng-web-apis/resize-observer';
 import { TuiSidebarModule } from '@taiga-ui/addon-mobile';
 import { TuiActiveZoneModule } from '@taiga-ui/cdk';
 import { TuiButtonModule, TuiLinkModule, TuiModeModule, TuiScrollbarModule } from '@taiga-ui/core';
 import { TuiInputModule, TuiTextareaModule } from '@taiga-ui/kit';
 
+import { GridItemDirective } from '@client/app/ui/grid/grid-item.directive';
+import { GridComponent } from '@client/app/ui/grid/grid.component';
+import { VideoComponent } from '@client/app/ui/video/video.component';
 import { UserMediaService } from '@client/services/user-media.service';
 import { Meeting } from '@shared/models/meeting';
 import { NullableString } from '@shared/types/nullable';
@@ -27,6 +31,10 @@ import { NullableString } from '@shared/types/nullable';
         TuiLinkModule,
         TuiTextareaModule,
         NgClass,
+        ResizeObserverModule,
+        GridComponent,
+        VideoComponent,
+        GridItemDirective,
     ],
     templateUrl: './meeting-page.component.html',
     styleUrl: './meeting-page.component.scss',
@@ -50,36 +58,9 @@ export class MeetingPageComponent {
         { name: 'Мария' },
         { name: 'Иван' },
         { name: 'Артём' },
-        { name: 'Мария' },
-        { name: 'Иван' },
-        { name: 'Артём' },
-        { name: 'Мария' },
-        { name: 'Иван' },
-        { name: 'Артём' },
-        { name: 'Мария' },
-        { name: 'Иван' },
-        { name: 'Артём' },
-        { name: 'Мария' },
-        { name: 'Иван' },
-        { name: 'Артём' },
-        { name: 'Мария' },
-        { name: 'Иван' },
-        { name: 'Артём' },
-        { name: 'Мария' },
-        { name: 'Иван' },
-        { name: 'Артём' },
-        { name: 'Мария' },
-        { name: 'Иван' },
-        { name: 'Артём' },
-        { name: 'Мария' },
-        { name: 'Иван' },
-        { name: 'Артём' },
-        { name: 'Мария' },
-        { name: 'Иван' },
-        { name: 'Артём' },
-        { name: 'Мария' },
-        { name: 'Иван' },
     ]);
+
+    readonly positions: Signal<{ width: number; height: number; top: number; left: number }[]> = signal([]);
 
     readonly messages = [
         { author: 'Артём', text: 'Привет!', time: '12:01', isMine: false },
