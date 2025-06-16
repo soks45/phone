@@ -3,14 +3,24 @@ import { HttpStatusCode } from '@angular/common/http';
 import express from 'express';
 
 import { MeetingService } from '@server/services/meeting.service';
+import meetingSchema from '@server/validations/meeting.schema';
 import uuidSchema from '@server/validations/uuid.schema';
 import { StatusException } from '@shared/exceptions/status.exception';
+import { MeetingData } from '@shared/models/meeting.data';
 
 const meetingController = express
     .Router()
     .post('/', async (req, res, next) => {
+        const parameters: MeetingData = req.body;
+
+        const { error } = meetingSchema(parameters);
+        if (error) {
+            res.status(400).json({ error });
+            return;
+        }
+
         try {
-            const meeting = await MeetingService.create();
+            const meeting = await MeetingService.create(parameters);
             res.send(meeting);
         } catch (err) {
             next(err);

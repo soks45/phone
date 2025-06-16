@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 
 import { API_TOKEN } from '@client/app/tokens/api.token';
 import { Meeting } from '@shared/models/meeting';
+import { MeetingData } from '@shared/models/meeting.data';
 
 @Injectable({
     providedIn: 'root',
@@ -20,8 +21,8 @@ export class MeetingService {
         return this.http.get<Meeting>(`${this.api}/meeting/${id}`);
     }
 
-    create(): Observable<Meeting> {
-        return this.http.post<Meeting>(`${this.api}/meeting`, {});
+    create(data: MeetingData): Observable<Meeting> {
+        return this.http.post<Meeting>(`${this.api}/meeting`, data);
     }
 
     close(id: string): Observable<void> {

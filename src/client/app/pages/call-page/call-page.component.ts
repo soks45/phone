@@ -17,7 +17,6 @@ import { from } from 'rxjs';
 
 import { MeetingService } from '@client/services/meeting.service';
 import { WebRtcConnectionService } from '@client/services/web-rtc-connection.service';
-import { Meeting } from '@shared/models/meeting';
 import { WebRtcConnectionDto } from '@shared/models/web-rtc-connection.dto';
 
 @Component({
@@ -91,12 +90,5 @@ export class CallPageComponent {
                 .pipe(takeUntilDestroyed(this.destroyRef))
                 .subscribe();
         }
-    }
-
-    createMeeting(): void {
-        this.meetingService
-            .create()
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe((meeting: Meeting) => this.router.navigate(['meeting', meeting.id, 'join']));
     }
 }

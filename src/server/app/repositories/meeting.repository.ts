@@ -1,10 +1,14 @@
 import { DatabaseException } from '@server/exceptions/database.exception';
 import { DatabaseService } from '@server/services/database.service';
 import { Meeting } from '@shared/models/meeting';
+import { MeetingData } from '@shared/models/meeting.data';
 
 class MeetingRepository {
-    async create(): Promise<Meeting> {
-        const result = await DatabaseService.query<Meeting>(`INSERT INTO meeting DEFAULT VALUES RETURNING *`);
+    async create({ name, description }: MeetingData): Promise<Meeting> {
+        const result = await DatabaseService.query<Meeting>(
+            `INSERT INTO meeting (name, description) VALUES ($1, $2) RETURNING *`,
+            [name, description]
+        );
 
         return result.rows[0];
     }

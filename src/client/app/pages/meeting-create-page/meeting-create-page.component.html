@@ -1,0 +1,39 @@
+<section class="section">
+    <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-full lg:py-0">
+        <div class="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0">
+            <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
+                <h1 class="text-xl font-semibold text-center break-words">Создание конференции</h1>
+
+                <form [formGroup]="meetingForm" (ngSubmit)="createMeeting()">
+                    <div class="tui-form__row">
+                        <tui-input [formControl]="meetingForm.controls.name" tuiMode="onLight">
+                            Название
+                            <input tuiTextfield />
+                            <span class="tui-required"></span>
+                        </tui-input>
+                        <tui-error
+                            [formControl]="meetingForm.controls.name"
+                            [error]="[] | tuiFieldError | async"
+                        ></tui-error>
+                    </div>
+
+                    <div class="tui-form__row">
+                        <tui-textarea
+                            [formControl]="meetingForm.controls.description"
+                            class="field-medium w-full"
+                            [expandable]="true"
+                            [maxLength]="30"
+                            tuiMode="onLight"
+                        >
+                            Описание
+                        </tui-textarea>
+                    </div>
+
+                    <button size="l" type="submit" tuiButton class="max-w-3xl w-96 mt-12" autofocus>
+                        Создать к конференцию
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>

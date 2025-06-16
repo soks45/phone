@@ -1,9 +1,10 @@
 import { MeetingRepository } from '@server/repositories/meeting.repository';
 import { Meeting } from '@shared/models/meeting';
+import { MeetingData } from '@shared/models/meeting.data';
 
 class MeetingService {
-    create(): Promise<Meeting> {
-        return MeetingRepository.create();
+    create(data: MeetingData): Promise<Meeting> {
+        return MeetingRepository.create(data);
     }
     close(id: string): Promise<void> {
         return MeetingRepository.close(id);
