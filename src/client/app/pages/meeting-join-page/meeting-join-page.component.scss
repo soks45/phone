@@ -10,3 +10,8 @@
     align-items: center;
     justify-content: center;
 }
+
+.reversed {
+    flex-direction: row-reverse;
+    margin-top: 1rem;
+}

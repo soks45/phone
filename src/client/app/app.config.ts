@@ -5,6 +5,7 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 
 import { TuiRootModule } from '@taiga-ui/core';
+import { tuiAvatarOptionsProvider } from '@taiga-ui/experimental';
 import { TUI_LANGUAGE, TUI_RUSSIAN_LANGUAGE } from '@taiga-ui/i18n';
 import { of } from 'rxjs';
 
@@ -24,6 +25,10 @@ export const appConfig: ApplicationConfig = {
         provideHttpClient(withFetch(), withInterceptorsFromDi()),
         provideRouter(routes, withComponentInputBinding()),
         importProvidersFrom(TuiRootModule),
+        tuiAvatarOptionsProvider({
+            round: true,
+            size: 'l',
+        }),
         {
             provide: TUI_LANGUAGE,
             useValue: of(TUI_RUSSIAN_LANGUAGE),
