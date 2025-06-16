@@ -1,12 +1,10 @@
-import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { computed, DestroyRef, Inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { computed, Inject, Injectable, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 
 import { catchError, EMPTY, finalize, Observable, of, switchMap, tap } from 'rxjs';
 
 import { API_TOKEN } from '@client/app/tokens/api.token';
-import { WsService } from '@client/services/ws.service';
 import { User } from '@shared/models/user';
 import { UserData } from '@shared/models/user.data';
 
@@ -22,26 +20,11 @@ export class AuthService {
     constructor(
         private readonly http: HttpClient,
         @Inject(API_TOKEN)
-        private readonly api: string,
-        @Inject(PLATFORM_ID)
-        private readonly id: string,
-        private readonly wsService: WsService,
-        private readonly destroyRef: DestroyRef
+        private readonly api: string
     ) {}
 
     initAuthentication(): Observable<User> {
         return this.profile();
-    }
-
-    initActiveUserObserving(): void {
-        if (isPlatformBrowser(this.id)) {
-            this.isAuthed$
-                .pipe(
-                    switchMap((isAuthed) => (isAuthed ? this.wsService.provideConnection('active-user') : EMPTY)),
-                    takeUntilDestroyed(this.destroyRef)
-                )
-                .subscribe();
-        }
     }
 
     registerLoginPassword(userData: UserData): Observable<User> {

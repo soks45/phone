@@ -9,13 +9,16 @@ const wsController = (app: Express) => {
 
     return Router()
         .use(authentication)
-        .ws('/active-user', (ws, req) => {
+        .ws('/', (ws, req) => {
             if (req.isAuthenticated() && req.user) {
                 ActiveUsersService.add(req.user.id);
 
                 ws.on('close', () => {
                     ActiveUsersService.remove(req.user.id);
                 });
+
+                setTimeout(() => ws.close(), 5000);
+
                 return;
             }
 

@@ -48,12 +48,6 @@ export const appConfig: ApplicationConfig = {
             multi: true,
         },
         {
-            provide: APP_INITIALIZER,
-            useFactory: (authService: AuthService) => () => authService.initActiveUserObserving(),
-            deps: [AuthService],
-            multi: true,
-        },
-        {
             provide: WebRtcConnectionService,
             useFactory: (httpClient: HttpClient, api: string) => {
                 return new WebRtcBrowserConnectionService(httpClient, api);
@@ -62,10 +56,10 @@ export const appConfig: ApplicationConfig = {
         },
         {
             provide: WsService,
-            useFactory: (wsToken: string) => {
-                return new WsClientService(wsToken);
+            useFactory: (wsToken: string, authService: AuthService) => {
+                return new WsClientService(wsToken, authService);
             },
-            deps: [WS_TOKEN],
+            deps: [WS_TOKEN, AuthService],
         },
     ],
 };
