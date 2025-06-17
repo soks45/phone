@@ -1,11 +1,20 @@
 import { Inject, Injectable } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { BehaviorSubject, EMPTY, filter, map, Observable, of, shareReplay, switchMap, take } from 'rxjs';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 
 import { WS_TOKEN } from '@client/app/tokens/ws.token';
 import { AuthService } from '@client/services/auth.service';
-import { deserializeWsEvent, isThatType, serializeWsEvent, WsEvents, WsMessage } from '@shared/models/ws-event';
+import {
+    deserializeWsEvent,
+    isThatType,
+    serializeWsEvent,
+    WsCommonEvents,
+    WsEvents,
+    WsMeetingServerEvents,
+    WsMessage,
+} from '@shared/models/ws-event';
 
 @Injectable()
 export abstract class WsService {
@@ -28,6 +37,7 @@ export class WsClientService {
         closeObserver: {
             next: () => {
                 this.opened$.next(false);
+                this.ready$.next(false);
             },
         },
         openObserver: {
@@ -37,7 +47,9 @@ export class WsClientService {
         },
     });
 
+    /** ws is opened */
     private readonly opened$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+    /** backend ready for communication */
     private readonly ready$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
     private connection?: Observable<WsMessage>;
@@ -47,9 +59,11 @@ export class WsClientService {
         private readonly url: string,
         private readonly auth: AuthService
     ) {
-        this.ofType('wsReady').subscribe(({ data }) => {
-            this.ready$.next(data);
-        });
+        this.ofType('wsReady')
+            .pipe(takeUntilDestroyed())
+            .subscribe(({ data }) => {
+                this.ready$.next(data);
+            });
     }
 
     messages(): Observable<WsMessage> {
@@ -72,7 +86,7 @@ export class WsClientService {
         return this.connection;
     }
 
-    ofType<K extends keyof WsEvents>(type: K): Observable<WsMessage<K>> {
+    ofType<K extends keyof (WsMeetingServerEvents & WsCommonEvents)>(type: K): Observable<WsMessage<K>> {
         return this.messages().pipe(
             filter((wsMessage: WsMessage): wsMessage is WsMessage<K> => isThatType(type, wsMessage))
         );
@@ -80,6 +94,10 @@ export class WsClientService {
 
     /** There is some time to check auth on back so we need to get some stable call */
     send(message: WsMessage): void {
+        if (this.ready$.value) {
+            this.webSocketSubject.next(message);
+        }
+
         this.ready()
             .pipe(filter(Boolean), take(1))
             .subscribe(() => {

@@ -1,19 +1,17 @@
-import { filter, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 
+import { MeetingEventListenerBuilder } from '@server/app/models/meeting-session-event-listener-builder';
 import { ServerWsSession } from '@server/app/models/server-ws-session';
+import { MeetingRepository } from '@server/repositories/meeting.repository';
+import { AppException } from '@shared/exceptions/app.exception';
 import { WsMessage } from '@shared/models/ws-event';
 import { WsSession } from '@shared/models/ws-session';
 
 export class MeetingSession {
     private readonly sessions = new Set<ServerWsSession>();
-    private readonly sub: Subscription = new Subscription();
+    private readonly subs: Map<ServerWsSession, Subscription> = new Map<ServerWsSession, Subscription>();
 
     constructor(readonly id: string) {}
-
-    destroy(): void {
-        this.sub.unsubscribe();
-        this.sessions.clear();
-    }
 
     connect(session: ServerWsSession): void {
         if (this.isConnected(session)) {
@@ -22,29 +20,58 @@ export class MeetingSession {
         }
 
         this.sessions.add(session);
-        this.sub.add(session.closed().subscribe(() => this.disconnect(session)));
-        this.sub.add(
-            session
-                .message('meetingGetPeers')
-                .pipe(filter((msg) => msg.payload.data.meetingId === this.id))
-                .subscribe(() =>
-                    this.sendTo(session, {
-                        type: 'meetingPeers',
-                        data: { meetingId: this.id, peers: this.peersJSON() },
-                    })
-                )
-        );
+        this.observeEvents(session);
 
         this.sendTo(session, { type: 'meetingConnected', data: { meetingId: this.id } });
         this.sendOther(session, { type: 'meetingJoined', data: { meetingId: this.id, userId: session.userId } });
         this.broadcastPeers();
     }
 
+    private observeEvents(session: ServerWsSession): void {
+        this.subs.set(
+            session,
+            new MeetingEventListenerBuilder(session, this.id)
+                .on('meetingPostMessage', async ({ sessionId, userId, data }) => {
+                    try {
+                        const message = await MeetingRepository.postMessage(this.id, userId, data.message);
+                        this.broadcast({
+                            type: 'meetingMessagePosted',
+                            data: { meetingId: this.id, message },
+                        });
+                    } catch (e) {
+                        this.sendTo(session, {
+                            type: 'error',
+                            data: new AppException('Failed to post message'),
+                        });
+                    }
+                })
+                .on('meetingGetPeers', () =>
+                    this.sendTo(session, {
+                        type: 'meetingPeers',
+                        data: { meetingId: this.id, peers: this.peersJSON() },
+                    })
+                )
+                .onClose(() => this.disconnect(session))
+                .build()
+        );
+    }
+
     disconnect(session: ServerWsSession): void {
         this.sendTo(session, { type: 'meetingDisconnected', data: { meetingId: this.id } });
         this.sessions.delete(session);
+        this.stopObservingEvents(session);
         this.broadcast({ type: 'meetingLeft', data: { meetingId: this.id, userId: session.userId } });
         this.broadcastPeers();
+    }
+
+    private stopObservingEvents(session: ServerWsSession): void {
+        this.subs.get(session)?.unsubscribe();
+        this.subs.delete(session);
+    }
+
+    destroy(): void {
+        this.subs.forEach((value) => value.unsubscribe());
+        this.sessions.clear();
     }
 
     broadcast(message: WsMessage): void {

@@ -3,6 +3,7 @@ import { ServerWsSession } from '@server/app/models/server-ws-session';
 import { MeetingRepository } from '@server/repositories/meeting.repository';
 import { AppException } from '@shared/exceptions/app.exception';
 import { Meeting } from '@shared/models/meeting';
+import { MeetingMessage } from '@shared/models/meeting-message';
 import { MeetingData } from '@shared/models/meeting.data';
 import { User } from '@shared/models/user';
 import { WsSession } from '@shared/models/ws-session';
@@ -10,25 +11,11 @@ import { WsSession } from '@shared/models/ws-session';
 class MeetingService {
     private readonly meetings: Map<string, MeetingSession> = new Map();
 
-    create(data: MeetingData): Promise<Meeting> {
-        return MeetingRepository.create(data);
-    }
-
     async close(meetingId: string): Promise<void> {
         const meeting = this.getOrCreateMeeting(meetingId);
         meeting.destroy();
         this.meetings.delete(meetingId);
         return MeetingRepository.close(meetingId);
-    }
-
-    get(meetingId: string): Promise<Meeting> {
-        return MeetingRepository.get(meetingId);
-    }
-
-    async getParticipants(meetingId: string): Promise<User[]> {
-        await this.assertMeetingIsCreatedAndActive(meetingId);
-        const participants: User[] = await MeetingRepository.participants(meetingId);
-        return participants;
     }
 
     async getPeers(meetingId: string): Promise<WsSession[]> {
@@ -39,7 +26,7 @@ class MeetingService {
 
     register(wsSession: ServerWsSession): void {
         wsSession.message('meetingConnect').subscribe((message) => {
-            this.join(message.payload.data.meetingId, wsSession);
+            this.join(message.data.meetingId, wsSession);
         });
         wsSession.send({ type: 'wsReady', data: true });
     }
@@ -60,6 +47,23 @@ class MeetingService {
     private async assertMeetingIsCreatedAndActive(id: string): Promise<void> {
         const exists = MeetingRepository.exists(id);
         if (!exists) throw new AppException(`[MeetingService] Meeting not found: ${id}`);
+    }
+
+    create(data: MeetingData): Promise<Meeting> {
+        return MeetingRepository.create(data);
+    }
+
+    get(meetingId: string): Promise<Meeting> {
+        return MeetingRepository.get(meetingId);
+    }
+
+    async getParticipants(meetingId: string): Promise<User[]> {
+        await this.assertMeetingIsCreatedAndActive(meetingId);
+        return MeetingRepository.participants(meetingId);
+    }
+
+    chatMessages(meetingId: string): Promise<MeetingMessage[]> {
+        return MeetingRepository.getMessages(meetingId);
     }
 }
 

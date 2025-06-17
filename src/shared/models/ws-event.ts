@@ -1,19 +1,29 @@
+import { AppException } from '@shared/exceptions/app.exception';
+import { MeetingMessage } from '@shared/models/meeting-message';
 import { WsSession } from '@shared/models/ws-session';
 
-export interface WsEvents {
+export type WsEvents = WsCommonEvents & WsMeetingClientEvents & WsMeetingServerEvents;
+
+export interface WsCommonEvents {
     message: string;
-    error: string;
+    error: AppException;
+    wsReady: boolean;
+}
+
+export interface WsMeetingClientEvents {
     meetingConnect: { meetingId: string };
     meetingDisconnect: { meetingId: string };
     meetingGetPeers: { meetingId: string };
+    meetingPostMessage: { meetingId: string; message: string };
+}
 
+export interface WsMeetingServerEvents {
     meetingConnected: { meetingId: string };
     meetingDisconnected: { meetingId: string };
     meetingJoined: { meetingId: string; userId: number };
     meetingLeft: { meetingId: string; userId: number };
     meetingPeers: { meetingId: string; peers: WsSession[] };
-
-    wsReady: boolean;
+    meetingMessagePosted: { meetingId: string; message: MeetingMessage };
 }
 
 export interface WsMessage<K extends keyof WsEvents = keyof WsEvents> {

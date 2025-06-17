@@ -13,8 +13,6 @@ const config: ClientConfig = {
     application_name: process.env['DATABASE_NAME'],
 };
 
-console.log(config);
-
 class DatabaseService extends Pool {
     constructor(config: ClientConfig) {
         super(config);

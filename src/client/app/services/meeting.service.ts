@@ -1,13 +1,26 @@
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 
-import { filter, Observable, Subscriber, Subscription } from 'rxjs';
+import {
+    filter,
+    map,
+    MonoTypeOperatorFunction,
+    Observable,
+    pipe,
+    scan,
+    startWith,
+    Subscriber,
+    Subscription,
+    switchMap,
+} from 'rxjs';
 
 import { API_TOKEN } from '@client/app/tokens/api.token';
 import { WsService } from '@client/services/ws.service';
 import { Meeting } from '@shared/models/meeting';
+import { MeetingMessage } from '@shared/models/meeting-message';
 import { MeetingData } from '@shared/models/meeting.data';
 import { User } from '@shared/models/user';
+import { WsMeetingServerEvents, WsMessage } from '@shared/models/ws-event';
 import { WsSession } from '@shared/models/ws-session';
 
 @Injectable({
@@ -65,5 +78,37 @@ export class MeetingService {
 
             return sub;
         });
+    }
+
+    postMessage(meetingId: string, message: string): void {
+        this.wsService.send({ type: 'meetingPostMessage', data: { meetingId, message } });
+    }
+
+    observeChatMessages(meetingId: string): Observable<MeetingMessage[]> {
+        return this.chatMessages(meetingId).pipe(
+            switchMap((initialMessages: MeetingMessage[]) =>
+                this.observeMeetingMessagePosted(meetingId).pipe(
+                    scan((messages, newMessage) => [newMessage, ...messages], initialMessages),
+                    startWith(initialMessages)
+                )
+            )
+        );
+    }
+
+    chatMessages(meetingId: string): Observable<MeetingMessage[]> {
+        return this.http.get<MeetingMessage[]>(`${this.api}/meeting/${meetingId}/messages`);
+    }
+
+    observeMeetingMessagePosted(meetingId: string): Observable<MeetingMessage> {
+        return this.wsService.ofType('meetingMessagePosted').pipe(
+            this.meetingMessages(meetingId),
+            map(({ data }) => data.message)
+        );
+    }
+
+    private meetingMessages<T extends keyof WsMeetingServerEvents>(
+        meetingId: string
+    ): MonoTypeOperatorFunction<WsMessage<T>> {
+        return pipe(filter((message) => message.data.meetingId === meetingId));
     }
 }

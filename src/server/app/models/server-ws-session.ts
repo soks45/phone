@@ -6,7 +6,7 @@ import { WsSession } from '@shared/models/ws-session';
 
 export class ServerWsMessage<K extends keyof WsEvents = keyof WsEvents> {
     constructor(
-        readonly payload: WsMessage<K>,
+        readonly data: WsMessage<K>['data'],
         readonly userId: number,
         readonly sessionId: string
     ) {}
@@ -29,7 +29,7 @@ export class ServerWsSession {
                 try {
                     const message = deserializeWsEvent(rawData);
                     if (isThatType(type, message)) {
-                        observer.next(new ServerWsMessage(message, this.userId, this.sessionId));
+                        observer.next(new ServerWsMessage(message.data, this.userId, this.sessionId));
                     }
                 } catch (e) {
                     observer.error(e);
@@ -41,7 +41,6 @@ export class ServerWsSession {
 
             this.ws.on('message', onMessage);
             this.ws.on('close', onClose);
-            this.ws.on('open', () => console.warn('123'));
 
             return () => {
                 this.ws.off('message', onMessage);
