@@ -1,19 +1,65 @@
+import { MeetingSession } from '@server/app/models/meeting-session';
+import { ServerWsSession } from '@server/app/models/server-ws-session';
 import { MeetingRepository } from '@server/repositories/meeting.repository';
+import { AppException } from '@shared/exceptions/app.exception';
 import { Meeting } from '@shared/models/meeting';
 import { MeetingData } from '@shared/models/meeting.data';
+import { User } from '@shared/models/user';
+import { WsSession } from '@shared/models/ws-session';
 
 class MeetingService {
+    private readonly meetings: Map<string, MeetingSession> = new Map();
+
     create(data: MeetingData): Promise<Meeting> {
         return MeetingRepository.create(data);
     }
-    close(id: string): Promise<void> {
-        return MeetingRepository.close(id);
+
+    async close(meetingId: string): Promise<void> {
+        const meeting = this.getOrCreateMeeting(meetingId);
+        meeting.destroy();
+        this.meetings.delete(meetingId);
+        return MeetingRepository.close(meetingId);
     }
-    get(id: string): Promise<Meeting> {
-        return MeetingRepository.get(id);
+
+    get(meetingId: string): Promise<Meeting> {
+        return MeetingRepository.get(meetingId);
     }
-    async join(meetingId: string, userId: number): Promise<void> {
-        await MeetingRepository.join(meetingId, userId);
+
+    async getParticipants(meetingId: string): Promise<User[]> {
+        await this.assertMeetingIsCreatedAndActive(meetingId);
+        const participants: User[] = await MeetingRepository.participants(meetingId);
+        return participants;
+    }
+
+    async getPeers(meetingId: string): Promise<WsSession[]> {
+        await this.assertMeetingIsCreatedAndActive(meetingId);
+        const meeting: MeetingSession = this.getOrCreateMeeting(meetingId);
+        return meeting.peersJSON();
+    }
+
+    register(wsSession: ServerWsSession): void {
+        wsSession.message('meetingConnect').subscribe((message) => {
+            this.join(message.payload.data.meetingId, wsSession);
+        });
+        wsSession.send({ type: 'wsReady', data: true });
+    }
+
+    async join(meetingId: string, wsSession: ServerWsSession): Promise<void> {
+        await this.assertMeetingIsCreatedAndActive(meetingId);
+        await MeetingRepository.join(meetingId, wsSession.userId);
+        const meeting: MeetingSession = this.getOrCreateMeeting(meetingId);
+        meeting.connect(wsSession);
+    }
+
+    private getOrCreateMeeting(meetingId: string): MeetingSession {
+        const meeting = this.meetings.get(meetingId) ?? new MeetingSession(meetingId);
+        this.meetings.set(meetingId, meeting);
+        return meeting;
+    }
+
+    private async assertMeetingIsCreatedAndActive(id: string): Promise<void> {
+        const exists = MeetingRepository.exists(id);
+        if (!exists) throw new AppException(`[MeetingService] Meeting not found: ${id}`);
     }
 }
 

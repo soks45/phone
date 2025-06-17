@@ -25,6 +25,18 @@ class UserRepository {
 
         return result.rows[0];
     }
+    async readMany(ids: number[]): Promise<User[]> {
+        if (ids.length === 0) {
+            return [];
+        }
+
+        const result = await DatabaseService.query<User>(
+            `SELECT id, email, login FROM user_data WHERE id = ANY($1) AND is_active = true`,
+            [ids]
+        );
+
+        return result.rows;
+    }
     async readByLogin(login: string): Promise<User> {
         const result = await DatabaseService.query<User>(
             'SELECT id, email, login FROM user_data WHERE login = $1 and is_active = true',

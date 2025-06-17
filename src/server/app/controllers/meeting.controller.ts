@@ -58,9 +58,8 @@ const meetingController = express
             next(new StatusException(404, `Meeting does not exist or is closed: ${uuid}`));
         }
     })
-    .post('/:uuid/join', async (req, res, next) => {
+    .get('/:uuid/participants', async (req, res, next) => {
         const uuid: string = req.params.uuid;
-        const userId: number = req.user?.id!;
 
         const { error } = uuidSchema(uuid);
         if (error) {
@@ -69,17 +68,10 @@ const meetingController = express
         }
 
         try {
-            const meeting = await MeetingService.get(uuid);
-
-            if (!meeting || !meeting.is_active) {
-                throw new StatusException(400, `Meeting does not exist or is closed: ${uuid}`);
-            }
-
-            await MeetingService.join(uuid, userId);
-
-            return res.status(200).json(meeting);
+            const meeting = await MeetingService.getParticipants(uuid);
+            res.send(meeting);
         } catch (err) {
-            return next(err);
+            next(new StatusException(404, `Meeting does not exist or is closed: ${uuid}`));
         }
     });
 export { meetingController as MeetingController };

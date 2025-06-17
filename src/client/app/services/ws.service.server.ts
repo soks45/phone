@@ -9,6 +9,9 @@ import { WsMessage, WsEvents } from '@shared/models/ws-event';
  * */
 @Injectable()
 export class WsServiceServer extends WsService {
+    ofType(): never {
+        throw new ShouldNotBeUsedDuringSsrException('WsService');
+    }
     disconnected(): never {
         throw new ShouldNotBeUsedDuringSsrException('WsService');
     }

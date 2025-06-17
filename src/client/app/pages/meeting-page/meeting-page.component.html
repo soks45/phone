@@ -2,14 +2,9 @@
     <div class="flex flex-1 overflow-hidden">
         <div class="flex-1 flex items-center justify-center bg-black relative">
             <app-grid>
-                <app-video appGridItem></app-video>
-                <app-video appGridItem></app-video>
-                <app-video appGridItem></app-video>
-                <app-video appGridItem></app-video>
-                <app-video appGridItem></app-video>
-                <app-video appGridItem></app-video>
-                <app-video appGridItem></app-video>
-                <app-video appGridItem></app-video>
+                @for (participant of participants(); track participant.sessionId) {
+                    <app-video appGridItem></app-video>
+                }
             </app-grid>
         </div>
     </div>
@@ -131,7 +126,7 @@
                             <li *ngFor="let participant of participants()">
                                 <div class="flex items-center gap-2">
                                     <div class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
-                                    {{ participant.name }}
+                                    {{ participant.userId }}
                                 </div>
                             </li>
                         </ul>

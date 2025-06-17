@@ -25,8 +25,8 @@
                         <tui-avatar-stack class="tui-space_vertical-4" direction="right">
                             @for (user of participants() | slice: 0 : maxParticipantsToDisplay; track user.id) {
                                 <tui-avatar
-                                    [src]="user.name | tuiInitials"
-                                    [style.background]="user.name | tuiAutoColor"
+                                    [src]="user.email || user.login || '' | tuiInitials"
+                                    [style.background]="user.email || user.login || '' | tuiAutoColor"
                                 ></tui-avatar>
                             }
 
@@ -36,10 +36,10 @@
                         </tui-avatar-stack>
                     } @else {
                         @for (user of participants(); track user.id) {
-                            <tui-avatar-labeled [label]="user.name">
+                            <tui-avatar-labeled [label]="user.email || user.login || ''">
                                 <tui-avatar
-                                    [src]="user.name | tuiInitials"
-                                    [style.background]="user.name | tuiAutoColor"
+                                    [src]="user.email || user.login || '' | tuiInitials"
+                                    [style.background]="user.email || user.login || '' | tuiAutoColor"
                                 ></tui-avatar>
                             </tui-avatar-labeled>
                         }

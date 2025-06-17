@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, contentChildren, Signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, contentChildren, effect, Signal } from '@angular/core';
 
 import { ResizeObserverModule } from '@ng-web-apis/resize-observer';
 
@@ -15,8 +15,20 @@ import { createGrid } from '@client/app/ui/grid/grid.position';
 })
 export class GridComponent {
     readonly items: Signal<readonly GridItemDirective[]> = contentChildren(GridItemDirective);
+    private lastResizeEntry: ResizeObserverEntry | null = null;
+
+    constructor() {
+        effect(() => {
+            this.items();
+            const entry = this.lastResizeEntry;
+            if (entry) {
+                this.recalculateGrid([entry]);
+            }
+        });
+    }
 
     recalculateGrid([entry]: ResizeObserverEntry[]): void {
+        this.lastResizeEntry = entry;
         const items = this.items();
 
         const { width, height, getPosition } = createGrid({

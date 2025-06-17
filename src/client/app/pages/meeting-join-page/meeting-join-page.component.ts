@@ -1,5 +1,5 @@
 import { SlicePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal, Signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, Signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
@@ -16,6 +16,7 @@ import {
 import { VideoComponent } from '@client/app/ui/video/video.component';
 import { UserMediaService } from '@client/services/user-media.service';
 import { Meeting } from '@shared/models/meeting';
+import { User } from '@shared/models/user';
 
 @Component({
     selector: 'app-meeting-page',
@@ -40,21 +41,7 @@ import { Meeting } from '@shared/models/meeting';
 export class MeetingJoinPageComponent {
     readonly meeting = input.required<Meeting>();
     readonly localMedia: Signal<MediaStream | undefined> = inject(UserMediaService).localMediaStream;
-    readonly participants = signal([
-        { name: 'Артём Репа', id: 1 },
-        { name: 'Мария Арбуз', id: 2 },
-        { name: 'Иван Болотов', id: 3 },
-        { name: 'Артём Синий', id: 4 },
-        { name: 'Мария Пеле', id: 5 },
-        { name: 'Иван', id: 6 },
-        { name: 'Артём', id: 7 },
-        { name: 'Мария', id: 8 },
-        { name: 'Иван', id: 9 },
-        { name: 'Артём', id: 10 },
-        { name: 'Мария', id: 11 },
-        { name: 'Иван', id: 12 },
-        { name: 'Артём', id: 13 },
-    ]);
+    readonly participants: Signal<User[]> = input.required<User[]>();
     readonly maxParticipantsToDisplay = 4;
 
     readonly extraParticipantsLength = computed(() =>

@@ -1,5 +1,16 @@
 import { NgClass, NgForOf } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input, Signal, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    input,
+    Signal,
+    signal,
+    OnInit,
+    DestroyRef,
+    WritableSignal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 import { ResizeObserverModule } from '@ng-web-apis/resize-observer';
@@ -11,8 +22,11 @@ import { TuiInputModule, TuiTextareaModule } from '@taiga-ui/kit';
 import { GridItemDirective } from '@client/app/ui/grid/grid-item.directive';
 import { GridComponent } from '@client/app/ui/grid/grid.component';
 import { VideoComponent } from '@client/app/ui/video/video.component';
+import { MeetingService } from '@client/services/meeting.service';
 import { UserMediaService } from '@client/services/user-media.service';
+import { WsService } from '@client/services/ws.service';
 import { Meeting } from '@shared/models/meeting';
+import { WsSession } from '@shared/models/ws-session';
 import { NullableString } from '@shared/types/nullable';
 
 @Component({
@@ -40,27 +54,27 @@ import { NullableString } from '@shared/types/nullable';
     styleUrl: './meeting-page.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MeetingPageComponent {
+export class MeetingPageComponent implements OnInit {
     readonly meeting = input.required<Meeting>();
     readonly localMedia: Signal<MediaStream | undefined> = inject(UserMediaService).localMediaStream;
 
-    readonly participants = signal([
-        { name: 'Артём' },
-        { name: 'Мария' },
-        { name: 'Иван' },
-        { name: 'Артём' },
-        { name: 'Мария' },
-        { name: 'Иван' },
-        { name: 'Артём' },
-        { name: 'Мария' },
-        { name: 'Иван' },
-        { name: 'Артём' },
-        { name: 'Мария' },
-        { name: 'Иван' },
-        { name: 'Артём' },
-    ]);
+    constructor(
+        private readonly wsService: WsService,
+        private readonly meetingService: MeetingService,
+        private readonly destroyRef: DestroyRef
+    ) {}
 
-    readonly positions: Signal<{ width: number; height: number; top: number; left: number }[]> = signal([]);
+    ngOnInit(): void {
+        this.wsService.send({ type: 'meetingConnect', data: { meetingId: this.meeting().id } });
+        this.meetingService
+            .observePeers(this.meeting().id)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((peers) => {
+                this.participants.set(peers);
+            });
+    }
+
+    readonly participants: WritableSignal<WsSession[]> = signal([]);
 
     readonly messages = [
         { author: 'Артём', text: 'Привет!', time: '12:01', isMine: false },

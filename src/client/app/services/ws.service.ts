@@ -1,17 +1,17 @@
 import { Inject, Injectable } from '@angular/core';
 
-import { EMPTY, Observable, shareReplay, Subject, switchMap } from 'rxjs';
+import { BehaviorSubject, EMPTY, filter, map, Observable, of, shareReplay, switchMap, take } from 'rxjs';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 
 import { WS_TOKEN } from '@client/app/tokens/ws.token';
 import { AuthService } from '@client/services/auth.service';
-import { WsConnection } from '@shared/models/ws-connection';
-import { deserializeWsEvent, serializeWsEvent, WsMessage } from '@shared/models/ws-event';
+import { deserializeWsEvent, isThatType, serializeWsEvent, WsEvents, WsMessage } from '@shared/models/ws-event';
 
 @Injectable()
-export abstract class WsService implements WsConnection {
+export abstract class WsService {
     abstract disconnected(): Observable<void>;
     abstract messages(): Observable<WsMessage>;
+    abstract ofType<K extends keyof WsEvents>(type: K): Observable<WsMessage<K>>;
     abstract send(message: WsMessage): void;
 }
 
@@ -19,7 +19,7 @@ export abstract class WsService implements WsConnection {
  * Should be available only in browser context
  * */
 @Injectable()
-export class WsClientService implements WsConnection {
+export class WsClientService {
     private readonly webSocketSubject: WebSocketSubject<WsMessage> = webSocket({
         url: `${this.url}`,
         protocol: 'https',
@@ -27,19 +27,30 @@ export class WsClientService implements WsConnection {
         serializer: serializeWsEvent,
         closeObserver: {
             next: () => {
-                this.close$.next();
+                this.opened$.next(false);
+            },
+        },
+        openObserver: {
+            next: () => {
+                this.opened$.next(true);
             },
         },
     });
 
-    private readonly close$ = new Subject<void>();
+    private readonly opened$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+    private readonly ready$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
     private connection?: Observable<WsMessage>;
 
     constructor(
-        @Inject(WS_TOKEN) private readonly url: string,
+        @Inject(WS_TOKEN)
+        private readonly url: string,
         private readonly auth: AuthService
-    ) {}
+    ) {
+        this.ofType('wsReady').subscribe(({ data }) => {
+            this.ready$.next(data);
+        });
+    }
 
     messages(): Observable<WsMessage> {
         if (!this.connection) {
@@ -53,7 +64,7 @@ export class WsClientService implements WsConnection {
                 }),
                 shareReplay({
                     bufferSize: 1,
-                    refCount: true,
+                    refCount: false,
                 })
             );
         }
@@ -61,11 +72,31 @@ export class WsClientService implements WsConnection {
         return this.connection;
     }
 
+    ofType<K extends keyof WsEvents>(type: K): Observable<WsMessage<K>> {
+        return this.messages().pipe(
+            filter((wsMessage: WsMessage): wsMessage is WsMessage<K> => isThatType(type, wsMessage))
+        );
+    }
+
+    /** There is some time to check auth on back so we need to get some stable call */
     send(message: WsMessage): void {
-        this.webSocketSubject?.next(message);
+        this.ready()
+            .pipe(filter(Boolean), take(1))
+            .subscribe(() => {
+                this.webSocketSubject.next(message);
+            });
+    }
+
+    ready(): Observable<boolean> {
+        return this.opened$.pipe(
+            switchMap((opened) => (opened ? this.ofType('wsReady').pipe(map(({ data }) => data)) : of(false)))
+        );
     }
 
     disconnected(): Observable<void> {
-        return this.close$;
+        return this.opened$.pipe(
+            filter((v) => !v),
+            map(() => {})
+        );
     }
 }
