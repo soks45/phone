@@ -1,14 +1,15 @@
 import { AsyncPipe, DatePipe, NgClass, NgForOf } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, Renderer2, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { ResizeObserverModule } from '@ng-web-apis/resize-observer';
 import { TuiSidebarModule } from '@taiga-ui/addon-mobile';
 import { TuiActiveZoneModule } from '@taiga-ui/cdk';
 import { TuiButtonModule, TuiLinkModule, TuiModeModule, TuiScrollbarModule } from '@taiga-ui/core';
 import { TuiInputModule, TuiTextareaModule } from '@taiga-ui/kit';
-import { map, Observable, shareReplay, switchMap } from 'rxjs';
+import { map, Observable, shareReplay, switchMap, take } from 'rxjs';
 
 import { RtcConnection } from '@client/app/models/rtc-connection';
 import { GridItemDirective } from '@client/app/ui/grid/grid-item.directive';
@@ -16,6 +17,7 @@ import { GridComponent } from '@client/app/ui/grid/grid.component';
 import { VideoComponent } from '@client/app/ui/video/video.component';
 import { AuthService } from '@client/services/auth.service';
 import { MeetingService } from '@client/services/meeting.service';
+import { UserMediaService } from '@client/services/user-media.service';
 import { Meeting } from '@shared/models/meeting';
 import { MeetingMessage } from '@shared/models/meeting-message';
 import { MeetingRtcMetadata } from '@shared/models/meeting-rtc-metadata';
@@ -44,6 +46,7 @@ import { NullableString } from '@shared/types/nullable';
         GridItemDirective,
         DatePipe,
         AsyncPipe,
+        RouterLink,
     ],
     templateUrl: './meeting-page.component.html',
     styleUrl: './meeting-page.component.scss',
@@ -52,8 +55,6 @@ import { NullableString } from '@shared/types/nullable';
 export class MeetingPageComponent {
     readonly meeting: Meeting = inject(ActivatedRoute).snapshot.data['meeting'];
     readonly currentUser = inject(AuthService).user;
-
-    constructor(private readonly meetingService: MeetingService) {}
 
     readonly participants$: Observable<WsSession[]> = this.meetingService.observePeers(this.meeting.id).pipe(
         shareReplay({
@@ -98,10 +99,46 @@ export class MeetingPageComponent {
 
     readonly audioStream$: Observable<MediaStream> = this.audioTracks$.pipe(
         map((tracks: MediaStreamTrack[]) => {
-            tracks.shift();
+            tracks.shift(); // loopback
             return new MediaStream(tracks);
         })
     );
+
+    readonly audio$: Observable<HTMLAudioElement> = this.audioStream$.pipe(
+        map((stream: MediaStream) => {
+            const audio: HTMLAudioElement = this.renderer.createElement('audio');
+            audio.srcObject = stream;
+            return audio;
+        }),
+        shareReplay({
+            refCount: true,
+            bufferSize: 1,
+        })
+    );
+
+    readonly audioMuted$: Observable<boolean> = this.audio$.pipe(
+        switchMap((audio: HTMLAudioElement) => {
+            return new Observable<boolean>((observer) => {
+                const update = () => observer.next(audio.muted);
+                update();
+
+                const muteUnlisten = this.renderer.listen(audio, 'mute', update);
+                const unmuteUnlisten = this.renderer.listen(audio, 'unmute', update);
+
+                return () => {
+                    muteUnlisten();
+                    unmuteUnlisten();
+                };
+            });
+        }),
+        shareReplay({
+            refCount: true,
+            bufferSize: 1,
+        })
+    );
+
+    readonly microphoneMuted$: Observable<boolean> = this.userMediaService.microphoneMuted$;
+    readonly cameraMuted$: Observable<boolean> = this.userMediaService.cameraMuted$;
 
     readonly videoTracks$: Observable<MediaStreamTrack[]> = this.tracks$.pipe(
         map((tracks: MediaStreamTrack[]) => {
@@ -117,22 +154,40 @@ export class MeetingPageComponent {
         switchMap(() => this.meetingService.meetingMetadata(this.meeting.id))
     );
 
+    readonly chatOpened = signal<boolean>(false);
+    readonly participantsOpened = signal<boolean>(false);
+
     readonly messageForm = new FormGroup({
         message: new FormControl<NullableString>(null, [Validators.required]),
     });
 
-    readonly videoEnabled = signal(true);
-    readonly audioEnabled = signal(true);
+    constructor(
+        private readonly meetingService: MeetingService,
+        private readonly userMediaService: UserMediaService,
+        private readonly renderer: Renderer2,
+        private readonly destroyRef: DestroyRef
+    ) {
+        this.playAudio();
+    }
 
-    readonly chatOpened = signal<boolean>(false);
-    readonly participantsOpened = signal<boolean>(false);
-
-    toggleVideo(): void {
-        this.videoEnabled.update((v) => !v);
+    playAudio(): void {
+        this.audio$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((audio) => audio.play());
     }
 
     toggleAudio(): void {
-        this.audioEnabled.update((v) => !v);
+        this.audio$.pipe(take(1), takeUntilDestroyed(this.destroyRef)).subscribe((audio: HTMLAudioElement) => {
+            audio.muted = !audio.muted;
+            const event = new Event(audio.muted ? 'mute' : 'unmute');
+            audio.dispatchEvent(event);
+        });
+    }
+
+    toggleMicrophone(): void {
+        this.userMediaService.toggleMicrophone().pipe(take(1), takeUntilDestroyed(this.destroyRef)).subscribe();
+    }
+
+    toggleCamera(): void {
+        this.userMediaService.toggleCamera().pipe(take(1), takeUntilDestroyed(this.destroyRef)).subscribe();
     }
 
     toggleChat(open: boolean): void {

@@ -72,10 +72,6 @@ export class WebRtcConnectionServer extends BaseConnection {
         await this.peerConnection.setLocalDescription(offer);
         try {
             await this.waitUntilIceGatheringStateComplete();
-            console.log('peer: ', this.id);
-            for (const transceiver of this.peerConnection.getTransceivers()) {
-                console.log(transceiver.currentDirection);
-            }
         } catch (error) {
             this.close();
             throw error;

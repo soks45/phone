@@ -14,8 +14,8 @@
                 type="button"
                 size="m"
                 appearance="outline"
-                [icon]="audioState() ? 'tuiIconMic' : 'tuiIconMicOff'"
-                (click)="toggleAudio()"
+                [icon]="audioMuted() ? 'tuiIconMicOff' : 'tuiIconMic'"
+                (click)="toggleAudio.emit()"
                 tuiTheme="night"
             ></button>
 
@@ -24,8 +24,8 @@
                 type="button"
                 size="m"
                 appearance="outline"
-                [icon]="videoState() ? 'tuiIconVideo' : 'tuiIconVideoOff'"
-                (click)="toggleVideo()"
+                [icon]="videoMuted() ? 'tuiIconVideoOff' : 'tuiIconVideo'"
+                (click)="toggleVideo.emit()"
                 tuiTheme="night"
             ></button>
         </div>

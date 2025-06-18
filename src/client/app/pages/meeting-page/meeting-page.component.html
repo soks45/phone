@@ -5,8 +5,6 @@
                 @for (stream of videoStreams$ | async; track stream.id) {
                     <app-video appGridItem [srcObject]="stream"></app-video>
                 }
-
-                <audio [srcObject]="audioStream$ | async" autoplay playsinline></audio>
             </app-grid>
         </div>
     </div>
@@ -20,8 +18,8 @@
                 type="button"
                 size="m"
                 appearance="outline"
-                [icon]="audioEnabled() ? 'tuiIconMic' : 'tuiIconMicOff'"
-                (click)="toggleAudio()"
+                [icon]="(microphoneMuted$ | async) ? 'tuiIconMicOff' : 'tuiIconMic'"
+                (click)="toggleMicrophone()"
                 tuiTheme="night"
             ></button>
 
@@ -30,8 +28,8 @@
                 type="button"
                 size="m"
                 appearance="outline"
-                [icon]="videoEnabled() ? 'tuiIconVideo' : 'tuiIconVideoOff'"
-                (click)="toggleVideo()"
+                [icon]="(cameraMuted$ | async) ? 'tuiIconVideoOff' : 'tuiIconVideo'"
+                (click)="toggleCamera()"
                 tuiTheme="night"
             ></button>
 
@@ -39,10 +37,21 @@
                 tuiIconButton
                 type="button"
                 size="m"
+                appearance="outline"
+                [icon]="(audioMuted$ | async) ? 'tuiIconVolumeX' : 'tuiIconVolume2'"
+                (click)="toggleAudio()"
+                tuiTheme="night"
+            ></button>
+
+            <a
+                tuiIconButton
+                type="button"
+                size="m"
                 appearance="accent"
                 icon="tuiIconPhoneOff"
                 tuiTheme="night"
-            ></button>
+                routerLink="/"
+            ></a>
         </div>
 
         <div class="flex gap-2 flex-1 justify-end">

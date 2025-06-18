@@ -5,8 +5,8 @@ import {
     effect,
     ElementRef,
     input,
+    output,
     Signal,
-    signal,
     viewChild,
 } from '@angular/core';
 
@@ -24,43 +24,25 @@ export class VideoComponent {
     private readonly video: Signal<ElementRef<HTMLVideoElement>> =
         viewChild.required<ElementRef<HTMLVideoElement>>('video');
 
-    readonly srcObject = input<MediaStream>();
     readonly controls = input(false, {
         transform: coerceBooleanProperty,
     });
 
-    readonly videoState = signal(true);
-    readonly audioState = signal(true);
+    readonly srcObject = input<MediaStream>();
+    readonly audioMuted = input<boolean>(false);
+    readonly videoMuted = input<boolean>(false);
+
+    readonly toggleVideo = output<void>();
+    readonly toggleAudio = output<void>();
 
     constructor() {
-        effect(
-            () => {
-                const localMedia = this.srcObject();
-                const videoTag = this.video().nativeElement;
-                if (localMedia) {
-                    videoTag.srcObject = localMedia;
-                    videoTag.autoplay = true;
-                    this.audioState.set(!!localMedia.getAudioTracks()[0]?.enabled);
-                    this.videoState.set(!!localMedia.getVideoTracks()[0]?.enabled);
-                }
-            },
-            { allowSignalWrites: true }
-        );
-    }
-
-    toggleVideo(): void {
-        const videoTrack = this.srcObject()?.getVideoTracks()[0];
-        if (videoTrack) {
-            videoTrack.enabled = !videoTrack.enabled;
-            this.videoState.set(videoTrack.enabled);
-        }
-    }
-
-    toggleAudio(): void {
-        const audioTrack = this.srcObject()?.getAudioTracks()[0];
-        if (audioTrack) {
-            audioTrack.enabled = !audioTrack.enabled;
-            this.audioState.set(audioTrack.enabled);
-        }
+        effect(() => {
+            const localMedia = this.srcObject();
+            const videoTag = this.video().nativeElement;
+            if (localMedia) {
+                videoTag.srcObject = localMedia;
+                videoTag.autoplay = true;
+            }
+        });
     }
 }
