@@ -1,5 +1,6 @@
 import { AppException } from '@shared/exceptions/app.exception';
 import { MeetingMessage } from '@shared/models/meeting-message';
+import { MeetingRtcMetadata } from '@shared/models/meeting-rtc-metadata';
 import { WsSession } from '@shared/models/ws-session';
 
 export type WsEvents = WsCommonEvents & WsMeetingClientEvents & WsMeetingServerEvents;
@@ -15,6 +16,8 @@ export interface WsMeetingClientEvents {
     meetingDisconnect: { meetingId: string };
     meetingGetPeers: { meetingId: string };
     meetingPostMessage: { meetingId: string; message: string };
+    meetingRTCConnection: { meetingId: string; connectionId: string };
+    meetingGetRTCConnectionMetadata: { meetingId: string };
 }
 
 export interface WsMeetingServerEvents {
@@ -24,6 +27,8 @@ export interface WsMeetingServerEvents {
     meetingLeft: { meetingId: string; userId: number };
     meetingPeers: { meetingId: string; peers: WsSession[] };
     meetingMessagePosted: { meetingId: string; message: MeetingMessage };
+    meetingUpgradeRTCConnection: { meetingId: string };
+    meetingRTCConnectionMetadata: { meetingId: string; metadata: MeetingRtcMetadata };
 }
 
 export interface WsMessage<K extends keyof WsEvents = keyof WsEvents> {

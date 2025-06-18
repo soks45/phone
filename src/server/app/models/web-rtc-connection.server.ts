@@ -2,12 +2,15 @@ import wrtc from 'wrtc';
 
 import { BaseConnection } from '@server/app/models/base-connection';
 import { AppException } from '@shared/exceptions/app.exception';
+import { MeetingRtcMetadata } from '@shared/models/meeting-rtc-metadata';
 import { WebRtcConnectionDto } from '@shared/models/web-rtc-connection.dto';
 
 export class WebRtcConnectionServer extends BaseConnection {
     private readonly TIME_TO_CONNECTED = 10000;
     private readonly TIME_TO_HOST_CANDIDATES = 3000;
     private readonly TIME_TO_RECONNECTED = 10000;
+    /** transceiver + meta */
+    // private readonly meta: WeakMap<RTCRtpTransceiver, RtcTransceiverMetadata> = new WeakMap();
 
     private connectionTimer?: NodeJS.Timeout;
     private reconnectionTimer?: NodeJS.Timeout;
@@ -35,7 +38,7 @@ export class WebRtcConnectionServer extends BaseConnection {
         }
     };
 
-    private readonly peerConnection: any = new wrtc.RTCPeerConnection({
+    readonly peerConnection: RTCPeerConnection = new wrtc.RTCPeerConnection({
         sdpSemantics: 'unified-plan',
     });
 
@@ -57,18 +60,19 @@ export class WebRtcConnectionServer extends BaseConnection {
         }, this.TIME_TO_CONNECTED);
     }
 
-    async doOffer(): Promise<void> {
-        const audioTransceiver = this.peerConnection.addTransceiver('audio');
-        const videoTransceiver = this.peerConnection.addTransceiver('video');
-        await Promise.all([
-            audioTransceiver.sender.replaceTrack(audioTransceiver.receiver.track),
-            videoTransceiver.sender.replaceTrack(videoTransceiver.receiver.track),
-        ]);
+    transceiversMetadata(): MeetingRtcMetadata {
+        return {
+            connectionId: this.id,
+            transceivers: [],
+        };
+    }
 
+    async doOffer(): Promise<void> {
         const offer = await this.peerConnection.createOffer();
         await this.peerConnection.setLocalDescription(offer);
         try {
             await this.waitUntilIceGatheringStateComplete();
+            console.log(this.peerConnection.getTransceivers());
         } catch (error) {
             this.close();
             throw error;

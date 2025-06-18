@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 
 import {
+    concatMap,
     filter,
     map,
     MonoTypeOperatorFunction,
@@ -12,12 +13,16 @@ import {
     Subscriber,
     Subscription,
     switchMap,
+    tap,
 } from 'rxjs';
 
+import { RtcConnection } from '@client/app/models/rtc-connection';
 import { API_TOKEN } from '@client/app/tokens/api.token';
+import { WebRtcConnectionService } from '@client/services/web-rtc-connection.service';
 import { WsService } from '@client/services/ws.service';
 import { Meeting } from '@shared/models/meeting';
 import { MeetingMessage } from '@shared/models/meeting-message';
+import { MeetingRtcMetadata } from '@shared/models/meeting-rtc-metadata';
 import { MeetingData } from '@shared/models/meeting.data';
 import { User } from '@shared/models/user';
 import { WsMeetingServerEvents, WsMessage } from '@shared/models/ws-event';
@@ -31,7 +36,8 @@ export class MeetingService {
         @Inject(API_TOKEN)
         private readonly api: string,
         private readonly http: HttpClient,
-        private readonly wsService: WsService
+        private readonly wsService: WsService,
+        private readonly webRtcConnectionService: WebRtcConnectionService
     ) {}
 
     get(meetingId: string): Observable<Meeting> {
@@ -54,9 +60,12 @@ export class MeetingService {
         return new Observable<string>((subscriber: Subscriber<string>) => {
             const sub: Subscription = this.wsService
                 .ofType('meetingConnected')
-                .pipe(filter((message) => message.data.meetingId === meetingId))
+                .pipe(this.meetingMessages(meetingId))
                 .subscribe({
-                    next: (value) => subscriber.next(value.data.meetingId),
+                    next: (value) => {
+                        subscriber.next(value.data.meetingId);
+                        subscriber.complete();
+                    },
                     complete: () => subscriber.complete(),
                     error: (err: unknown) => subscriber.error(err),
                 });
@@ -65,6 +74,23 @@ export class MeetingService {
 
             return sub;
         });
+    }
+
+    getMeetingConnection(meetingId: string): Observable<RtcConnection> {
+        return this.webRtcConnectionService.initializeRTCPeerConnection().pipe(
+            tap((connection: RtcConnection) => {
+                this.wsService.send({
+                    type: 'meetingRTCConnection',
+                    data: { meetingId, connectionId: connection.remoteConnection.id },
+                });
+            }),
+            switchMap((connection) =>
+                this.observeMeetingUpgradeRTCConnection(meetingId).pipe(
+                    concatMap(() => this.webRtcConnectionService.upgradeRTCPeerConnection(connection)),
+                    startWith(connection)
+                )
+            )
+        );
     }
 
     observePeers(meetingId: string): Observable<WsSession[]> {
@@ -104,6 +130,33 @@ export class MeetingService {
             this.meetingMessages(meetingId),
             map(({ data }) => data.message)
         );
+    }
+
+    observeMeetingUpgradeRTCConnection(meetingId: string): Observable<void> {
+        return this.wsService.ofType('meetingUpgradeRTCConnection').pipe(
+            this.meetingMessages(meetingId),
+            map(() => {})
+        );
+    }
+
+    meetingMetadata(meetingId: string): Observable<MeetingRtcMetadata> {
+        return new Observable<MeetingRtcMetadata>((subscriber) => {
+            const sub: Subscription = this.wsService
+                .ofType('meetingRTCConnectionMetadata')
+                .pipe(this.meetingMessages(meetingId))
+                .subscribe({
+                    next: (value) => {
+                        subscriber.next(value.data.metadata);
+                        subscriber.complete();
+                    },
+                    complete: () => subscriber.complete(),
+                    error: (err: unknown) => subscriber.error(err),
+                });
+
+            this.wsService.send({ type: 'meetingGetRTCConnectionMetadata', data: { meetingId } });
+
+            return sub;
+        });
     }
 
     private meetingMessages<T extends keyof WsMeetingServerEvents>(

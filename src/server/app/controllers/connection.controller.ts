@@ -38,7 +38,23 @@ const connectionController = express
     })
     .post('/', async (req: Request, res: Response, next) => {
         try {
-            const connection = await ConnectionService.createConnection();
+            const connection = await ConnectionService.createConnection(req.user?.id!);
+            res.send(connection.toJSON());
+        } catch (error) {
+            next(new StatusException(HttpStatusCode.InternalServerError, 'Failed to create connection'));
+        }
+    })
+    .put('/:uuid', async (req, res, next) => {
+        const uuid: string = req.params.uuid;
+
+        const { error } = uuidSchema(uuid);
+        if (error) {
+            res.status(400).json({ error });
+            return;
+        }
+
+        try {
+            const connection = await ConnectionService.upgradeConnection(uuid);
             res.send(connection.toJSON());
         } catch (error) {
             next(new StatusException(HttpStatusCode.InternalServerError, 'Failed to create connection'));

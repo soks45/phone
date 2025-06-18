@@ -7,12 +7,13 @@ import { catchError, EMPTY, finalize, Observable, of, switchMap, tap } from 'rxj
 import { API_TOKEN } from '@client/app/tokens/api.token';
 import { User } from '@shared/models/user';
 import { UserData } from '@shared/models/user.data';
+import { Nullable } from '@shared/types/nullable';
 
 @Injectable({
     providedIn: 'root',
 })
 export class AuthService {
-    private readonly _user = signal<User | null>(null);
+    private readonly _user = signal<Nullable<User>>(null);
     readonly user = computed(() => this._user());
     readonly isAuthed = computed(() => !!this.user());
     readonly isAuthed$: Observable<boolean> = toObservable(this.isAuthed);

@@ -1,4 +1,4 @@
-import { ConnectionState } from '@server/app/models/base-connection';
+export type ConnectionState = 'opened' | 'closed';
 
 export interface Connection {
     readonly id: string;

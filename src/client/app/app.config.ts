@@ -12,6 +12,7 @@ import { of } from 'rxjs';
 import { API_TOKEN } from '@client/app/tokens/api.token';
 import { WS_TOKEN } from '@client/app/tokens/ws.token';
 import { AuthService } from '@client/services/auth.service';
+import { UserMediaService } from '@client/services/user-media.service';
 import { WebRtcBrowserConnectionService, WebRtcConnectionService } from '@client/services/web-rtc-connection.service';
 import { WsClientService, WsService } from '@client/services/ws.service';
 
@@ -49,10 +50,10 @@ export const appConfig: ApplicationConfig = {
         },
         {
             provide: WebRtcConnectionService,
-            useFactory: (httpClient: HttpClient, api: string) => {
-                return new WebRtcBrowserConnectionService(httpClient, api);
+            useFactory: (httpClient: HttpClient, api: string, userMediaService: UserMediaService) => {
+                return new WebRtcBrowserConnectionService(httpClient, api, userMediaService);
             },
-            deps: [HttpClient, API_TOKEN],
+            deps: [HttpClient, API_TOKEN, UserMediaService],
         },
         {
             provide: WsService,

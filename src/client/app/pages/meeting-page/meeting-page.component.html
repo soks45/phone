@@ -2,8 +2,8 @@
     <div class="flex flex-1 overflow-hidden">
         <div class="flex-1 flex items-center justify-center bg-black relative">
             <app-grid>
-                @for (participant of participants$ | async; track participant.sessionId) {
-                    <app-video appGridItem></app-video>
+                @for (stream of videoStreams$ | async; track stream.id) {
+                    <app-video appGridItem [srcObject]="stream"></app-video>
                 }
             </app-grid>
         </div>

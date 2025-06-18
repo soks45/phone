@@ -12,11 +12,15 @@ export class WebRtcServerConnectionService extends WebRtcConnectionService {
         super();
     }
 
-    closeConnection(): never {
+    override upgradeRTCPeerConnection(): never {
         throw new ShouldNotBeUsedDuringSsrException('WebRtcConnectionService');
     }
 
-    createConnection(): never {
+    initializeRTCPeerConnection(): never {
+        throw new ShouldNotBeUsedDuringSsrException('WebRtcConnectionService');
+    }
+
+    closeRTCPeerConnection(): never {
         throw new ShouldNotBeUsedDuringSsrException('WebRtcConnectionService');
     }
 }
