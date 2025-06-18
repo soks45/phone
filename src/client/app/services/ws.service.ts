@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { BehaviorSubject, EMPTY, filter, map, Observable, of, shareReplay, switchMap, take } from 'rxjs';
+import { BehaviorSubject, EMPTY, filter, map, Observable, of, retry, shareReplay, switchMap, take } from 'rxjs';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 
 import { WS_TOKEN } from '@client/app/tokens/ws.token';
@@ -71,7 +71,12 @@ export class WsClientService {
             this.connection = this.auth.isAuthed$.pipe(
                 switchMap((isAuthed) => {
                     if (isAuthed) {
-                        return this.webSocketSubject as Observable<WsMessage>;
+                        return this.webSocketSubject.pipe(
+                            retry({
+                                delay: 3000,
+                                count: 5,
+                            })
+                        );
                     } else {
                         return EMPTY;
                     }

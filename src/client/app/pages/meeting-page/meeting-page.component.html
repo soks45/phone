@@ -5,6 +5,8 @@
                 @for (stream of videoStreams$ | async; track stream.id) {
                     <app-video appGridItem [srcObject]="stream"></app-video>
                 }
+
+                <audio [srcObject]="audioStream$ | async" autoplay playsinline></audio>
             </app-grid>
         </div>
     </div>

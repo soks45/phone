@@ -80,7 +80,6 @@ export class MeetingPageComponent {
 
     readonly transceivers$: Observable<RTCRtpTransceiver[]> = this.meetingConnection$.pipe(
         map(({ peerConnection }) => {
-            console.log(peerConnection.getTransceivers());
             return peerConnection.getTransceivers().filter((transceiver) => transceiver.currentDirection !== 'stopped');
         })
     );
@@ -94,6 +93,13 @@ export class MeetingPageComponent {
     readonly audioTracks$: Observable<MediaStreamTrack[]> = this.tracks$.pipe(
         map((tracks: MediaStreamTrack[]) => {
             return tracks.filter(({ kind }) => kind === 'audio');
+        })
+    );
+
+    readonly audioStream$: Observable<MediaStream> = this.audioTracks$.pipe(
+        map((tracks: MediaStreamTrack[]) => {
+            tracks.shift();
+            return new MediaStream(tracks);
         })
     );
 

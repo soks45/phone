@@ -66,7 +66,7 @@ export class MeetingSession {
                     for (const peerSession of this.other(session)) {
                         const peerRTConnection = this.rtcSessions.get(peerSession);
                         if (!peerRTConnection) continue;
-                        await this.addMediaP2P(peerRTConnection, newRTCConnection, session);
+                        await this.addMediaP2P(peerRTConnection, newRTCConnection, peerSession);
                         await this.addMediaP2P(newRTCConnection, peerRTConnection, session);
                     }
 
@@ -124,12 +124,22 @@ export class MeetingSession {
             return;
         }
 
-        const audioTransceiver = receiver.peerConnection.addTransceiver(audioTrack);
-        const videoTransceiver = receiver.peerConnection.addTransceiver(videoTrack);
+        let audioTransceiver: RTCRtpTransceiver | null = receiver.peerConnection.addTransceiver(audioTrack);
+        let videoTransceiver: RTCRtpTransceiver | null = receiver.peerConnection.addTransceiver(videoTrack);
 
         session.closed().subscribe(() => {
-            audioTransceiver.stop();
-            videoTransceiver.stop();
+            try {
+                if (audioTransceiver && videoTransceiver) {
+                    audioTransceiver.stop();
+                    videoTransceiver.stop();
+                    sender.close();
+                }
+
+                audioTransceiver = null;
+                videoTransceiver = null;
+            } catch (e) {
+                console.error(e);
+            }
         });
     }
 

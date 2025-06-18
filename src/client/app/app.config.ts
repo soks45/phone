@@ -40,7 +40,7 @@ export const appConfig: ApplicationConfig = {
         },
         {
             provide: WS_TOKEN,
-            useValue: '/ws',
+            useValue: '/ws/',
         },
         {
             provide: APP_INITIALIZER,
