@@ -43,15 +43,15 @@
                 tuiTheme="night"
             ></button>
 
-            <a
+            <button
                 tuiIconButton
                 type="button"
                 size="m"
                 appearance="accent"
                 icon="tuiIconPhoneOff"
                 tuiTheme="night"
-                routerLink="/"
-            ></a>
+                appWindowClose
+            ></button>
         </div>
 
         <div class="flex gap-2 flex-1 justify-end">
@@ -138,12 +138,14 @@
 
                     <tui-scrollbar class="p-4 text-sm h-full" tuiMode="onDark">
                         <ul class="space-y-2">
-                            <li *ngFor="let participant of participants$ | async">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
-                                    {{ participant.userId }}
-                                </div>
-                            </li>
+                            @for (participant of participants$ | async; track participant.userId) {
+                                <li>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
+                                        {{ participant.userId }}
+                                    </div>
+                                </li>
+                            }
                         </ul>
                     </tui-scrollbar>
                 </div>

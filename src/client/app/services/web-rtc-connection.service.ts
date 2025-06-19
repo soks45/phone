@@ -60,7 +60,7 @@ export class WebRtcBrowserConnectionService extends WebRtcConnectionService {
 
     private async connectToServer(localPeerConnection: RTCPeerConnection): Promise<WebRtcConnectionDto> {
         const remotePeerConnection: WebRtcConnectionDto = await this.createConnectionToServer();
-        await this.negotiate(localPeerConnection, remotePeerConnection);
+        await this.sdpHandshake(localPeerConnection, remotePeerConnection);
         return remotePeerConnection;
     }
 
@@ -68,11 +68,11 @@ export class WebRtcBrowserConnectionService extends WebRtcConnectionService {
         const remotePeerConnection: WebRtcConnectionDto = await this.upgradeConnectionToServer(
             connectionStreams.remoteConnection
         );
-        await this.negotiate(connectionStreams.peerConnection, remotePeerConnection);
+        await this.sdpHandshake(connectionStreams.peerConnection, remotePeerConnection);
         return remotePeerConnection;
     }
 
-    private async negotiate(
+    private async sdpHandshake(
         localPeerConnection: RTCPeerConnection,
         remotePeerConnection: WebRtcConnectionDto
     ): Promise<void> {

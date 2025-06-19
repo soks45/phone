@@ -33,63 +33,59 @@ export class MeetingSession {
         this.broadcastPeers();
     }
 
-    private observeEvents(session: ServerWsSession): void {
+    close(): void {
+        this.subs.forEach((value) => value.unsubscribe());
+        this.wsSessions.clear();
+    }
+
+    private observeEvents(peerSession: ServerWsSession): void {
         this.subs.set(
-            session,
-            new MeetingEventListenerBuilder(session, this.id)
+            peerSession,
+            new MeetingEventListenerBuilder(peerSession, this.id)
+                .on('meetingRTCConnection', (message) => {
+                    const newPeerRTCConnection = ConnectionService.getConnection(message.data.connectionId);
+                    if (!newPeerRTCConnection) {
+                        return;
+                    }
+
+                    for (const newPeerSession of this.other(peerSession)) {
+                        const peerRTConnection = this.rtcSessions.get(newPeerSession);
+                        if (!peerRTConnection) continue;
+                        const removeTracksOnCloseWsNewPeer = peerRTConnection.addClientTracksFrom(newPeerRTCConnection);
+                        peerSession.closed().subscribe(() => removeTracksOnCloseWsNewPeer());
+                        const removeTracksOnCloseWsPeer = newPeerRTCConnection.addClientTracksFrom(peerRTConnection);
+                        newPeerSession.closed().subscribe(() => removeTracksOnCloseWsPeer());
+                    }
+
+                    this.rtcSessions.set(peerSession, newPeerRTCConnection);
+                    this.broadcastMeetingUpgradeRTCConnection();
+                })
                 .on('meetingPostMessage', async ({ userId, data }) => {
                     try {
-                        const message = await MeetingRepository.postMessage(this.id, userId, data.message);
+                        await MeetingRepository.postMessage(this.id, userId, data.message);
                         this.broadcast({
                             type: 'meetingMessagePosted',
-                            data: { meetingId: this.id, message },
+                            data: { meetingId: this.id },
                         });
                     } catch (e) {
-                        this.sendTo(session, {
+                        this.sendTo(peerSession, {
                             type: 'error',
                             data: new AppException('Failed to post message'),
                         });
                     }
                 })
-                .on('meetingGetPeers', () =>
-                    this.sendTo(session, {
+                .on('meetingGetPeers', () => {
+                    this.sendTo(peerSession, {
                         type: 'meetingPeers',
                         data: { meetingId: this.id, peers: this.peersJSON() },
-                    })
-                )
-                .on('meetingRTCConnection', async (message) => {
-                    const newRTCConnection = ConnectionService.getConnection(message.data.connectionId);
-                    if (!newRTCConnection) {
-                        return;
-                    }
-
-                    for (const peerSession of this.other(session)) {
-                        const peerRTConnection = this.rtcSessions.get(peerSession);
-                        if (!peerRTConnection) continue;
-                        await this.addMediaP2P(peerRTConnection, newRTCConnection, peerSession);
-                        await this.addMediaP2P(newRTCConnection, peerRTConnection, session);
-                    }
-
-                    this.rtcSessions.set(session, newRTCConnection);
-                    this.broadcastMeetingUpgradeRTCConnection();
-                })
-                .on('meetingGetRTCConnectionMetadata', () => {
-                    const rtcConnection: WebRtcConnectionServer | undefined = this.rtcSessions.get(session);
-                    if (!rtcConnection) {
-                        return;
-                    }
-
-                    this.sendTo(session, {
-                        type: 'meetingRTCConnectionMetadata',
-                        data: { meetingId: this.id, metadata: rtcConnection.transceiversMetadata() },
                     });
                 })
-                .onClose(() => this.disconnect(session))
+                .onClose(() => this.disconnect(peerSession))
                 .build()
         );
     }
 
-    disconnect(session: ServerWsSession): void {
+    private disconnect(session: ServerWsSession): void {
         this.wsSessions.delete(session);
         this.rtcSessions.get(session)?.close();
         this.rtcSessions.delete(session);
@@ -105,93 +101,50 @@ export class MeetingSession {
         this.subs.delete(session);
     }
 
-    private async addMediaP2P(
-        sender: WebRtcConnectionServer,
-        receiver: WebRtcConnectionServer,
-        session: ServerWsSession
-    ): Promise<void> {
-        const audioTrack = sender.peerConnection
-            .getTransceivers()
-            .map(({ sender }) => sender?.track)
-            .find((track) => track?.kind === 'audio');
-
-        const videoTrack = sender.peerConnection
-            .getTransceivers()
-            .map(({ sender }) => sender?.track)
-            .find((track) => track?.kind === 'video');
-
-        if (!audioTrack || !videoTrack) {
-            return;
-        }
-
-        let audioTransceiver: RTCRtpTransceiver | null = receiver.peerConnection.addTransceiver(audioTrack);
-        let videoTransceiver: RTCRtpTransceiver | null = receiver.peerConnection.addTransceiver(videoTrack);
-
-        session.closed().subscribe(() => {
-            try {
-                if (audioTransceiver && videoTransceiver) {
-                    audioTransceiver.stop();
-                    videoTransceiver.stop();
-                    sender.close();
-                }
-
-                audioTransceiver = null;
-                videoTransceiver = null;
-            } catch (e) {
-                console.error(e);
-            }
-        });
-    }
-
-    destroy(): void {
-        this.subs.forEach((value) => value.unsubscribe());
-        this.wsSessions.clear();
-    }
-
-    broadcast(message: WsMessage): void {
+    private broadcast(message: WsMessage): void {
         for (let session of this.peers()) {
             this.sendTo(session, message);
         }
     }
 
-    sendTo(session: ServerWsSession, message: WsMessage): void {
+    private sendTo(session: ServerWsSession, message: WsMessage): void {
         session.send(message);
     }
 
-    sendOther(session: ServerWsSession, message: WsMessage): void {
+    private sendOther(session: ServerWsSession, message: WsMessage): void {
         this.other(session).forEach((currentSession) => {
             this.sendTo(currentSession, message);
         });
     }
 
-    broadcastMeetingUpgradeRTCConnection(): void {
+    private broadcastMeetingUpgradeRTCConnection(): void {
         this.broadcast({ type: 'meetingUpgradeRTCConnection', data: { meetingId: this.id } });
     }
 
-    broadcastPeers(): void {
+    private broadcastPeers(): void {
         this.broadcast({
             type: 'meetingPeers',
             data: { meetingId: this.id, peers: this.peersJSON() },
         });
     }
 
-    other(session: ServerWsSession): ServerWsSession[] {
+    private other(session: ServerWsSession): ServerWsSession[] {
         return this.peers().filter((currentSession) => session !== currentSession);
     }
 
-    peers(): ServerWsSession[] {
+    private peers(): ServerWsSession[] {
         return [...this.wsSessions.values()];
     }
 
-    peersJSON(): WsSession[] {
+    private peersJSON(): WsSession[] {
         return [...this.wsSessions.values()].map((session) => session.toJSON());
     }
 
-    isEmpty(): boolean {
+    private isEmpty(): boolean {
         return this.wsSessions.size === 0;
     }
 
-    isConnected(session: ServerWsSession): boolean {
+    private isConnected(session: ServerWsSession): boolean {
         return this.wsSessions.has(session);
     }
 }

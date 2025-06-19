@@ -1,8 +1,8 @@
-import { AsyncPipe, DatePipe, NgClass, NgForOf } from '@angular/common';
+import { AsyncPipe, DatePipe, NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, Renderer2, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 
 import { ResizeObserverModule } from '@ng-web-apis/resize-observer';
 import { TuiSidebarModule } from '@taiga-ui/addon-mobile';
@@ -11,6 +11,7 @@ import { TuiButtonModule, TuiLinkModule, TuiModeModule, TuiScrollbarModule } fro
 import { TuiInputModule, TuiTextareaModule } from '@taiga-ui/kit';
 import { map, Observable, shareReplay, switchMap, take } from 'rxjs';
 
+import { WindowCloseDirective } from '@client/app/directives/window-close.directive';
 import { RtcConnection } from '@client/app/models/rtc-connection';
 import { GridItemDirective } from '@client/app/ui/grid/grid-item.directive';
 import { GridComponent } from '@client/app/ui/grid/grid.component';
@@ -20,7 +21,6 @@ import { MeetingService } from '@client/services/meeting.service';
 import { UserMediaService } from '@client/services/user-media.service';
 import { Meeting } from '@shared/models/meeting';
 import { MeetingMessage } from '@shared/models/meeting-message';
-import { MeetingRtcMetadata } from '@shared/models/meeting-rtc-metadata';
 import { WsSession } from '@shared/models/ws-session';
 import { NullableString } from '@shared/types/nullable';
 
@@ -28,7 +28,6 @@ import { NullableString } from '@shared/types/nullable';
     selector: 'app-meeting-page',
     standalone: true,
     imports: [
-        NgForOf,
         TuiButtonModule,
         TuiSidebarModule,
         TuiActiveZoneModule,
@@ -46,7 +45,7 @@ import { NullableString } from '@shared/types/nullable';
         GridItemDirective,
         DatePipe,
         AsyncPipe,
-        RouterLink,
+        WindowCloseDirective,
     ],
     templateUrl: './meeting-page.component.html',
     styleUrl: './meeting-page.component.scss',
@@ -148,10 +147,6 @@ export class MeetingPageComponent {
 
     readonly videoStreams$: Observable<MediaStream[]> = this.videoTracks$.pipe(
         map((tracks: MediaStreamTrack[]) => tracks.map((track) => new MediaStream([track])))
-    );
-
-    readonly meetingMetaData$: Observable<MeetingRtcMetadata> = this.meetingConnection$.pipe(
-        switchMap(() => this.meetingService.meetingMetadata(this.meeting.id))
     );
 
     readonly chatOpened = signal<boolean>(false);

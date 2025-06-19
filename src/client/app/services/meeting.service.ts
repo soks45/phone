@@ -8,7 +8,6 @@ import {
     MonoTypeOperatorFunction,
     Observable,
     pipe,
-    scan,
     startWith,
     Subscriber,
     Subscription,
@@ -22,7 +21,6 @@ import { WebRtcConnectionService } from '@client/services/web-rtc-connection.ser
 import { WsService } from '@client/services/ws.service';
 import { Meeting } from '@shared/models/meeting';
 import { MeetingMessage } from '@shared/models/meeting-message';
-import { MeetingRtcMetadata } from '@shared/models/meeting-rtc-metadata';
 import { MeetingData } from '@shared/models/meeting.data';
 import { User } from '@shared/models/user';
 import { WsMeetingServerEvents, WsMessage } from '@shared/models/ws-event';
@@ -111,13 +109,16 @@ export class MeetingService {
     }
 
     observeChatMessages(meetingId: string): Observable<MeetingMessage[]> {
-        return this.chatMessages(meetingId).pipe(
-            switchMap((initialMessages: MeetingMessage[]) =>
-                this.observeMeetingMessagePosted(meetingId).pipe(
-                    scan((messages, newMessage) => [newMessage, ...messages], initialMessages),
-                    startWith(initialMessages)
-                )
-            )
+        return this.observeMeetingMessagePosted(meetingId).pipe(
+            startWith(null),
+            switchMap(() => this.chatMessages(meetingId))
+        );
+    }
+
+    observeMeetingMessagePosted(meetingId: string): Observable<void> {
+        return this.wsService.ofType('meetingMessagePosted').pipe(
+            this.meetingMessages(meetingId),
+            map(() => undefined)
         );
     }
 
@@ -125,38 +126,11 @@ export class MeetingService {
         return this.http.get<MeetingMessage[]>(`${this.api}/meeting/${meetingId}/messages`);
     }
 
-    observeMeetingMessagePosted(meetingId: string): Observable<MeetingMessage> {
-        return this.wsService.ofType('meetingMessagePosted').pipe(
-            this.meetingMessages(meetingId),
-            map(({ data }) => data.message)
-        );
-    }
-
     observeMeetingUpgradeRTCConnection(meetingId: string): Observable<void> {
         return this.wsService.ofType('meetingUpgradeRTCConnection').pipe(
             this.meetingMessages(meetingId),
             map(() => {})
         );
-    }
-
-    meetingMetadata(meetingId: string): Observable<MeetingRtcMetadata> {
-        return new Observable<MeetingRtcMetadata>((subscriber) => {
-            const sub: Subscription = this.wsService
-                .ofType('meetingRTCConnectionMetadata')
-                .pipe(this.meetingMessages(meetingId))
-                .subscribe({
-                    next: (value) => {
-                        subscriber.next(value.data.metadata);
-                        subscriber.complete();
-                    },
-                    complete: () => subscriber.complete(),
-                    error: (err: unknown) => subscriber.error(err),
-                });
-
-            this.wsService.send({ type: 'meetingGetRTCConnectionMetadata', data: { meetingId } });
-
-            return sub;
-        });
     }
 
     private meetingMessages<T extends keyof WsMeetingServerEvents>(

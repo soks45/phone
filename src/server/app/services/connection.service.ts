@@ -15,12 +15,7 @@ class ConnectionService {
         const wrtcConnection = new WebRtcConnectionServer(newConnection.id);
         this.observeCloseConnection(wrtcConnection);
         try {
-            const audioTransceiver = wrtcConnection.peerConnection.addTransceiver('audio');
-            const videoTransceiver = wrtcConnection.peerConnection.addTransceiver('video');
-            await Promise.all([
-                audioTransceiver.sender.replaceTrack(audioTransceiver.receiver.track),
-                videoTransceiver.sender.replaceTrack(videoTransceiver.receiver.track),
-            ]);
+            await wrtcConnection.addClientTracks();
             await wrtcConnection.doOffer();
         } catch (err) {
             throw err;

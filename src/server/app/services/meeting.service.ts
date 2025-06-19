@@ -6,22 +6,15 @@ import { Meeting } from '@shared/models/meeting';
 import { MeetingMessage } from '@shared/models/meeting-message';
 import { MeetingData } from '@shared/models/meeting.data';
 import { User } from '@shared/models/user';
-import { WsSession } from '@shared/models/ws-session';
 
 class MeetingService {
     private readonly meetings: Map<string, MeetingSession> = new Map();
 
     async close(meetingId: string): Promise<void> {
         const meeting = this.getOrCreateMeeting(meetingId);
-        meeting.destroy();
+        meeting.close();
         this.meetings.delete(meetingId);
         return MeetingRepository.close(meetingId);
-    }
-
-    async getPeers(meetingId: string): Promise<WsSession[]> {
-        await this.assertMeetingIsCreatedAndActive(meetingId);
-        const meeting: MeetingSession = this.getOrCreateMeeting(meetingId);
-        return meeting.peersJSON();
     }
 
     register(wsSession: ServerWsSession): void {
