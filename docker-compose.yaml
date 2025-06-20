@@ -5,10 +5,8 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-        ports:
-            - "3000:3000"
         env_file:
-            - .env
+            - docker.env
         depends_on:
             - db
         entrypoint: ["sh", "-c", "npm run migrate:dev && npm run server:run"]
@@ -37,6 +35,8 @@ services:
         ports:
             - "443:443"
             - "80:80"
+        networks:
+            - app-network
 
 volumes:
     postgres:
